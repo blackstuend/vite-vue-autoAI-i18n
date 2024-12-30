@@ -1,0 +1,25 @@
+{
+  "name": "project-i18n",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Lucian",
+  "license": "ISC",
+  "main": "index.js",
+  "scripts": {
+    "start": "esno src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@antfu/eslint-config": "^3.12.1",
+    "dotenv": "^16.4.7",
+    "esno": "^4.8.0",
+    "fast-glob": "^3.3.2",
+    "openai": "^4.77.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.2",
+    "fs-extra": "^11.2.0"
+  }
+}
