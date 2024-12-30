@@ -1,7 +1,7 @@
 import { ProjectContext } from "./types";
 import glob from 'fast-glob'
 import process from 'node:process'
-import { getProjectInformation, getNewConfigFileContentWithI18nPlugin } from './ai'
+import { getProjectInformation, getNewConfigFileContentWithI18nPlugin, getNewVueFileContent } from './ai'
 import fs from 'fs-extra';
 
 export async function getProjectContext(): Promise<ProjectContext> {
@@ -35,6 +35,22 @@ export async function modifyConfigFile(builder: string,file: string) {
   console.log('Modify config file success,file path: ', file)
 }
 
-export async function updateConfigFile(configFile: string) {
+export async function updateVueFile(files: string[], locales: string[]) {
+  for(const file of files) {
+    const content = await fs.readFile(file, 'utf-8')
 
+    if(!content) {
+      continue;
+    }
+
+    const newContent = await getNewVueFileContent(locales, content)
+
+    if(!newContent) {
+      continue;
+    }
+
+    fs.writeFileSync(file, newContent)
+
+    console.log('Modify vue file success,file path: ', file)
+  }
 } 

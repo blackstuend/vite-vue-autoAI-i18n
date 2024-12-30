@@ -177,9 +177,111 @@ export const getNewConfigFileContentWithI18nPlugin = async (builder: string,cont
   return response;
 }
 
-export const getNewMainFileContent = async (content: string) => {
+/**
+ * 
+ * @param locales 
+ * @param content 
+ * @returns 
+ */
+export const getNewVueFileContent = async (locales: string[], content: string) => {
   const response = await askAI([
-    { role: "system", content: `[main file content: ${content}]` },
+    { role: "system", content: `
+        ## Role  
+        You are a expert of senior frontend developer, you can help user to update the vue file of the project, follow the below documenation, help user to translate the vue file.
+          
+        ## Objective
+        - Update the vue file of the project, and add the i18n translation to the vue file.
+        - Detect the file write by composition api or not, follow the example to rewrite the file.
+        - Return only the new content of the vue file as plain text.
+
+        ## Constraints
+        -  Provide the new content of the vue file without any additional words or formatting symbols like \`{{ code }}\` or \` \`\`\` \`.
+
+        ## Work Flow
+        - check the file write by composition api or not
+          - if not use composition api, use the example 1 to rewrite the file
+          - if use composition api, use the example 2 to rewrite the file
+          - if the file is not easy to recognize, use the example 2 to rewrite the file
+        - according to the locales, add the translation setting to the vue file
+
+        ## Example
+        Example 1(not use composition api):
+        * user Input:
+        locales: [en, ja]
+        vue file content: 
+        <template>
+          <p>hello</p>
+        </template>
+
+        <script>
+        export default {
+          name: 'App',
+          setup() {
+          }
+        }
+        </script>
+      Output:
+      <template>
+        <p>{{ t('hello') }}</p>
+      </template>
+
+      <script>
+      import { useI18n } from 'vue-i18n'
+
+      export default {
+        name: 'App',
+        setup() {
+          const { locale, t } = useI18n({
+            inheritLocale: true
+          })
+
+          return { locale, t }
+        }
+      }
+      <i18n>
+      {
+        "en": {
+          "hello": "hello!"
+        },
+        "ja": {
+          "hello": "こんにちは！"
+        }
+      }
+      </i18n>
+      </script>
+
+      Example 2(use composition api):
+      * user Input:
+      locales: [en, ja]
+      vue file content: 
+      <template>
+        <p>hello</p>
+      </template>
+      <script setup>
+      </script>
+
+      Output:
+      <template>
+        <p>{{ t('hello') }}</p>
+      </template>
+      <script setup>
+      import { useI18n } from 'vue-i18n'
+
+      const { t } = useI18n()
+      </script>
+      <i18n>
+      {
+        "en": {
+          "hello": "hello!"
+        },
+        "ja": {
+          "hello": "こんにちは！"
+        }
+      }
+      </i18n>
+      ` },
+    { role: "user", content: `locales: ${locales.join(', ')}
+                                vue file content: ${content}` },
   ])
 
   return response;
