@@ -116,3 +116,9 @@ const { t } = useI18n()
 }
 </i18n>
 ```
+
+## TODO
+
+- Add cache to prevent large project processing interruption
+- Add support more frameworks
+- Add support more builder
