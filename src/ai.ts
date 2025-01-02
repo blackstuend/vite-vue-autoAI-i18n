@@ -2,8 +2,6 @@ import process from 'node:process'
 import OpenAI from 'openai'
 import { extractAiResponseJSON } from './common'
 
-console.log('poress', process.env.OPENAI_API_KEY)
-
 async function askAI(rolesMessages: any) {
   try {
     const openai = new OpenAI({

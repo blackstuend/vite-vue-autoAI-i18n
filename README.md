@@ -42,3 +42,77 @@ If your project doesn't meet these requirements, this tool may not work as expec
 ```
 $ npx vue-vite-ai-i18n
 ```
+
+## Example for before and after
+
+### vite.config.ts
+
+Before
+```ts
+import Vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [vue()],
+})
+```
+
+After
+
+```ts
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import Vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [vue(), VueI18nPlugin()],
+})
+```
+
+### src/main.ts
+
+Before
+```ts
+import { createApp } from 'vue'
+import App from './App.vue'
+
+createApp(App).mount('#app')
+```
+
+After
+```ts
+import { createApp } from 'vue'
+import { createI18n } from 'vue-i18n'
+import App from './App.vue'
+
+const i18n = createI18n({
+  locale: 'en',
+  fallbackLocale: 'en',
+})
+```
+
+### Vue file
+
+Before
+```vue
+<template>
+  <div>Hello</div>
+</template>
+```
+
+After
+```vue
+<template>
+  <div>{{ t('hello') }}</div>
+</template>
+<script setup lang="ts">
+const { t } = useI18n()
+</script>
+<i18n>
+{
+  "en": {
+    "hello": "Hello"
+  }
+}
+</i18n>
+```
