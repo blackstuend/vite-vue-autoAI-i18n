@@ -1,25 +1,36 @@
 {
-  "name": "project-i18n",
+  "name": "vue-vite-ai-i18n",
   "type": "module",
   "version": "1.0.0",
-  "description": "",
+  "description": "Vite project set i18n and translate with AI",
   "author": "Lucian",
-  "license": "ISC",
-  "main": "index.js",
+  "license": "MIT",
+  "bin": {
+    "vue-vite-ai-i18n": "./dist/index.mjs"
+  },
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "start": "esno src/index.ts",
+    "watch": "unbuild --watch",
+    "build": "unbuild",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@antfu/eslint-config": "^3.12.1",
     "dotenv": "^16.4.7",
     "esno": "^4.8.0",
+    "execa": "^9.5.2",
     "fast-glob": "^3.3.2",
-    "openai": "^4.77.0"
+    "inquirer": "^12.3.0",
+    "openai": "^4.77.0",
+    "typescript": "^5.7.2"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.2",
-    "fs-extra": "^11.2.0"
+    "eslint": "^9.17.0",
+    "fs-extra": "^11.2.0",
+    "unbuild": "^3.2.0"
   }
 }

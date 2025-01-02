@@ -1,56 +1,189 @@
-import { ProjectContext } from "./types";
-import glob from 'fast-glob'
+import type { Builder, ProjectContext } from './types'
+import path from 'node:path'
 import process from 'node:process'
-import { getProjectInformation, getNewConfigFileContentWithI18nPlugin, getNewVueFileContent } from './ai'
-import fs from 'fs-extra';
+import { execa } from 'execa'
+import glob from 'fast-glob'
+import fs from 'fs-extra'
+import { getNewConfigFileContentWithI18nPlugin, getNewMainFileContent, getNewVueFileContent } from './ai'
 
-export async function getProjectContext(): Promise<ProjectContext> {
-  const cwd = process.cwd();
+export async function getProjectContext(options: {
+  locales: string[]
+  defaultLocale: string
+}): Promise<ProjectContext> {
+  const cwd = process.cwd()
 
   // get all files include the cwd
-  const allFiles = glob.sync('**/*', { cwd, absolute: true });
+  const allFiles = glob.sync('**/*.{js,ts,vue}', { cwd, absolute: false, ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/test/**', '**/public/**'] })
 
-  const projectInfo = await getProjectInformation(allFiles)
+  const packageJSONPath = path.join(cwd, 'package.json')
+
+  const builder = await getBuilder(packageJSONPath, allFiles)
+  if (!builder) {
+    throw new Error('Failed to get builder, please check your project is vue-cli or vite or webpack or nuxt')
+  }
+
+  const configFile = await getConfigFile(builder, allFiles)
+
+  if (!configFile) {
+    throw new Error('Failed to get config file')
+  }
+
+  const mainFile = await getMainFile(allFiles)
+  if (builder === 'vite' || builder === 'webpack' || builder === 'vue-cli') {
+    if (!mainFile) {
+      throw new Error('Failed to get main file, please check your project have main.js or main.ts')
+    }
+  }
 
   return {
+    mainFile,
+    locales: options.locales,
+    defaultLocale: options.defaultLocale,
     allFiles,
-    mainFile: projectInfo.mainFile,
-    configFile: projectInfo.configFile,
-    builder: projectInfo.builder,
-    locales: ['zh-CN', 'en-US'],
+    configFile,
+    builder,
   }
 }
 
-export async function modifyConfigFile(builder: string,file: string) {
+export async function getConfigFile(builder: Builder, allFiles: string[]): Promise<string | undefined> {
+  if (builder === 'vite') {
+    return allFiles.find(file => file.endsWith('vite.config.ts') || file.endsWith('vite.config.js')) || ''
+  }
+  else if (builder === 'webpack') {
+    return allFiles.find(file => file.endsWith('webpack.config.ts') || file.endsWith('webpack.config.js')) || ''
+  }
+  else if (builder === 'nuxt') {
+    return allFiles.find(file => file.endsWith('nuxt.config.ts') || file.endsWith('nuxt.config.js')) || ''
+  }
+  else if (builder === 'vue-cli') {
+    return allFiles.find(file => file.endsWith('vue.config.js') || file.endsWith('vue.config.ts')) || ''
+  }
+
+  return undefined
+}
+
+export async function getBuilder(packageJSONPath: string, allFils: string[]): Promise<Builder> {
+  // check package.json exist
+  if (fs.existsSync(packageJSONPath)) {
+    const packageJSON = await fs.readFile(packageJSONPath, 'utf-8')
+
+    try {
+      const packageJSONObj = JSON.parse(packageJSON)
+      if ('scripts' in packageJSONObj && typeof packageJSONObj.scripts === 'object') {
+        for (const script in packageJSONObj.scripts) {
+          const value = packageJSONObj.scripts[script]
+          if (typeof value === 'string' && value.includes('vite')) {
+            return 'vite'
+          }
+          else if (typeof value === 'string' && value.includes('webpack')) {
+            return 'webpack'
+          }
+          else if (typeof value === 'string' && value.includes('nuxt')) {
+            return 'nuxt'
+          }
+          else if (typeof value === 'string' && value.includes('vue-cli-service')) {
+            return 'vue-cli'
+          }
+        }
+      }
+    }
+    catch (error) {
+      throw new Error(`Failed to parse package.json, error: ${error}`)
+    }
+  }
+
+  for (const file of allFils) {
+    if (file.endsWith('vite.config.ts') || file.endsWith('vite.config.js')) {
+      return 'vite'
+    }
+    else if (file.endsWith('webpack.config.ts') || file.endsWith('webpack.config.js')) {
+      return 'webpack'
+    }
+    else if (file.endsWith('nuxt.config.ts') || file.endsWith('nuxt.config.js')) {
+      return 'nuxt'
+    }
+    else if (file.endsWith('vue.config.js') || file.endsWith('vue.config.ts')) {
+      return 'vue-cli'
+    }
+  }
+
+  return undefined
+}
+
+export async function getMainFile(allFiles: string[]): Promise<string | undefined> {
+  return allFiles.find(file => file.endsWith('main.ts') || file.endsWith('main.js')) || undefined
+}
+
+export async function modifyConfigFile(builder: string, file: string) {
   const content = await fs.readFile(file, 'utf-8')
 
-  const newContent = await getNewConfigFileContentWithI18nPlugin(builder,content)
+  const newContent = await getNewConfigFileContentWithI18nPlugin(builder, content)
 
-  if(!newContent) {
+  if (!newContent) {
     throw new Error('Failed to get new content of the config file')
   }
 
   fs.writeFileSync(file, newContent)
-
-  console.log('Modify config file success,file path: ', file)
 }
 
-export async function updateVueFile(files: string[], locales: string[]) {
-  for(const file of files) {
+export async function modifyVueFiles(files: string[], locales: string[]) {
+  for (const file of files) {
+    if (!file.endsWith('.vue')) {
+      continue
+    }
+
     const content = await fs.readFile(file, 'utf-8')
 
-    if(!content) {
-      continue;
+    if (!content) {
+      continue
     }
 
     const newContent = await getNewVueFileContent(locales, content)
 
-    if(!newContent) {
-      continue;
+    if (!newContent) {
+      continue
     }
 
     fs.writeFileSync(file, newContent)
 
     console.log('Modify vue file success,file path: ', file)
   }
-} 
+}
+
+export async function modifyMainFile(file: string, defaultLocale: string) {
+  const content = await fs.readFile(file, 'utf-8')
+
+  const newContent = await getNewMainFileContent(defaultLocale, content)
+
+  if (!newContent) {
+    throw new Error('Failed to get new content of the main file')
+  }
+
+  await fs.writeFile(file, newContent)
+}
+
+export async function installDependencies() {
+  const cwd = process.cwd()
+
+  let packageManager = 'npm'
+  // use lock file to check package manager
+  const lockFileMap = {
+    'package-lock.json': 'npm',
+    'yarn.lock': 'yarn',
+    'pnpm-lock.yaml': 'pnpm',
+  }
+
+  const lockFile = Object.keys(lockFileMap).find(file => fs.existsSync(path.join(cwd, file)))
+
+  if (lockFile) {
+    packageManager = lockFileMap[lockFile as keyof typeof lockFileMap]
+  }
+
+  const installCommand = packageManager === 'npm' ? 'npm install' : packageManager === 'yarn' ? 'yarn add' : 'pnpm add'
+
+  const command = `${installCommand} --save-dev @intlify/unplugin-vue-i18n vue-i18n`
+  await execa(command, {
+    shell: true,
+    cwd: process.cwd(),
+  })
+}
