@@ -37,12 +37,6 @@ If your project doesn't meet these requirements, this tool may not work as expec
    ```
    ⭐️ OpenRouter with the Deepseek model provides sufficient performance at a lower cost compared to default OpenAI options.
 
-## Start the tool
-
-```
-$ npx vue-vite-ai-i18n
-```
-
 ## Example for before and after
 
 ### vite.config.ts

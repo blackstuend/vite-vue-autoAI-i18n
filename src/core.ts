@@ -1,3 +1,4 @@
+import type { CacheData } from './cache'
 import type { Builder, ProjectContext } from './types'
 import path from 'node:path'
 import process from 'node:process'
@@ -5,6 +6,8 @@ import { execa } from 'execa'
 import glob from 'fast-glob'
 import fs from 'fs-extra'
 import { getNewConfigFileContentWithI18nPlugin, getNewMainFileContent, getNewVueFileContent } from './ai'
+import { saveCache } from './cache'
+import { getAllFiles } from './file'
 
 export async function getProjectContext(options: {
   locales: string[]
@@ -13,7 +16,7 @@ export async function getProjectContext(options: {
   const cwd = process.cwd()
 
   // get all files include the cwd
-  const allFiles = glob.sync('**/*.{js,ts,vue}', { cwd, absolute: false, ignore: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/test/**', '**/public/**'] })
+  const allFiles = getAllFiles()
 
   const packageJSONPath = path.join(cwd, 'package.json')
 
@@ -126,31 +129,47 @@ export async function modifyConfigFile(builder: string, file: string) {
   fs.writeFileSync(file, newContent)
 }
 
-export async function modifyVueFiles(files: string[], locales: string[]) {
+export async function modifyVueFiles(files: string[], locales: string[], cache: CacheData) {
   for (const file of files) {
-    if (!file.endsWith('.vue')) {
+    if (!file.endsWith('.vue') || cache.finishFiles.includes(file)) {
       continue
     }
+
+    console.log('Start processing vue file: ', file)
 
     const content = await fs.readFile(file, 'utf-8')
 
     if (!content) {
+      cache.finishFiles.push(file)
+
+      saveCache(cache)
       continue
     }
 
     const newContent = await getNewVueFileContent(locales, content)
 
-    if (!newContent) {
+    if (!newContent || newContent === 'null') {
+      cache.finishFiles.push(file)
+
+      saveCache(cache)
       continue
     }
 
     fs.writeFileSync(file, newContent)
 
+    cache.finishFiles.push(file)
+
+    saveCache(cache)
+
     console.log('Modify vue file success,file path: ', file)
   }
 }
 
-export async function modifyMainFile(file: string, defaultLocale: string) {
+export async function modifyMainFile(file?: string, defaultLocale?: string) {
+  if (!file || !defaultLocale) {
+    return
+  }
+
   const content = await fs.readFile(file, 'utf-8')
 
   const newContent = await getNewMainFileContent(defaultLocale, content)

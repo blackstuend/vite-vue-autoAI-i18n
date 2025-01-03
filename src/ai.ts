@@ -1,6 +1,9 @@
 import process from 'node:process'
+import dotenv from 'dotenv'
 import OpenAI from 'openai'
 import { extractAiResponseJSON } from './common'
+
+dotenv.config()
 
 async function askAI(rolesMessages: any) {
   try {
@@ -159,33 +162,38 @@ export async function getNewMainFileContent(defaultLocale: string, content: stri
   return response
 }
 
-export async function getNewVueFileContent(locales: string[], content: string) {
+export async function getNewVueFileContent(locales: string[], content: string): Promise<string | null> {
   const response = await askAI([
     { role: 'system', content: `
-        ## Role  
+        ## Role
         You are a expert of senior frontend developer, you can help user to update the vue file of the project, follow the below documenation, help user to translate the vue file.
-          
+
         ## Objective
         - Update the vue file of the project, and add the i18n translation to the vue file.
         - Detect the file write by composition api or not, follow the example to rewrite the file.
-        - Return only the new content of the vue file as plain text.
+        - If this file need to be translated, return the new content of the vue file
+        - If this file have no word need to be translated, return null
 
         ## Constraints
-        -  Provide the new content of the vue file without any additional words or formatting symbols like \`{{ code }}\` or \` \`\`\` \`.
+        - If the file without any word no need to be translated, directly return null
+        - Don't remove the existing code(like comments or eslint rules), just add the i18n translation to the vue file
+        - Just translate the text in the template
+        - i18n's key should be camelCase
+        - Provide the new content of the vue file without any additional words or formatting symbols like \`{{ code }}\` or \` \`\`\` \`.
 
         ## Work Flow
         - check the file write by composition api or not
-          - if not use composition api, use the example 1 to rewrite the file
-          - if use composition api, use the example 2 to rewrite the file
-          - if the file is not easy to recognize, use the example 2 to rewrite the file
-        - browser the file wheather the file need to add the i18n translation, if not need, return null
-        - according to the locales, add the translation setting to the vue file
+          - If not use composition api, use the example 1 to rewrite the file
+          - If use composition api, use the example 2 to rewrite the file
+          - If the file is not easy to recognize, use the example 2 to rewrite the file
+        - Browser the file wheather the file need to add the i18n translation, if not need, return null
+        - According to the locales, add the translation setting to the vue file
 
         ## Example
         Example 1(not use composition api):
         * user Input:
         locales: [en, ja]
-        vue file content: 
+        vue file content:
         <template>
           <p>hello</p>
         </template>
@@ -230,7 +238,7 @@ export async function getNewVueFileContent(locales: string[], content: string) {
       Example 2(use composition api):
       * user Input:
       locales: [en, ja]
-      vue file content: 
+      vue file content:
       <template>
         <p>hello</p>
       </template>
@@ -256,10 +264,26 @@ export async function getNewVueFileContent(locales: string[], content: string) {
           }
         }
         </i18n>
+
+        Example 3(not word need to be translated):
+        * user Input:
+        locales: [en, ja]
+        vue file content:
+        <template>
+          <div>
+            <p></p>
+          </div>
+        </template>
+      Output:
+      null
       ` },
     { role: 'user', content: `locales: ${locales.join(', ')}
                                 vue file content: ${content}` },
   ])
+
+  if (response === 'null') {
+    return null
+  }
 
   return response
 }
