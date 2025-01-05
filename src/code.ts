@@ -1,11 +1,21 @@
-class CodeModifier {
-  constructor(content) {
+interface Change {
+  start: number
+  end: number
+  type: 'delete' | 'replace'
+  content?: string[]
+}
+
+export class CodeModifier {
+  private lines: string[]
+  private changes: Change[]
+
+  constructor(content: string) {
     this.lines = content.split('\n')
     this.changes = []
   }
 
   // 新增一個刪除操作
-  addDeletion(startLine, endLine) {
+  addDeletion(startLine: number, endLine: number): void {
     this.changes.push({
       start: startLine,
       end: endLine,
@@ -14,7 +24,7 @@ class CodeModifier {
   }
 
   // 新增一個替換操作
-  addReplacement(startLine, endLine, newContent) {
+  addReplacement(startLine: number, endLine: number, newContent: string): void {
     this.changes.push({
       start: startLine,
       end: endLine,
@@ -23,9 +33,9 @@ class CodeModifier {
     })
   }
 
-  applyChanges() {
+  applyChanges(): string {
     // 依然是由下往上排序
-    this.changes.sort((a, b) => b.start - a.start)
+    this.changes.sort((a: Change, b: Change) => b.start - a.start)
 
     for (const change of this.changes) {
       const linesToRemove = change.end - change.start
@@ -43,25 +53,3 @@ class CodeModifier {
     return this.lines.join('\n')
   }
 }
-
-// 使用範例
-const code = `
-function hello() {
-  console.log("debug 1");
-  console.log("hello");
-  console.log("debug 2");
-  console.log("world");
-  return true;
-}
-`.trim()
-
-const modifier = new CodeModifier(code)
-
-// 刪除 debug 程式碼
-modifier.addDeletion(1, 2) // 刪除 "debug 1"
-modifier.addDeletion(3, 4) // 刪除 "debug 2"
-// 替換其他程式碼
-modifier.addReplacement(2, 3, '  console.log("Hello!");')
-
-const result = modifier.applyChanges()
-console.log(result)

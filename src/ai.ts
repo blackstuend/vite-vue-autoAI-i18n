@@ -5,6 +5,36 @@ import { extractAiResponseJSON } from './common'
 
 dotenv.config()
 
+const defaultSystemPrompt = `Your task is to suggest code modifications at the cursor position. Follow these instructions meticulously:
+
+1. Carefully analyze the original code, paying close attention to its structure and the cursor position.
+
+2. You must follow this json format when suggesting modifications:
+{% raw %}
+[
+  {
+    "row": \${row},
+    "col": \${column}, 
+    "content": "Your suggested code here"
+  }
+]
+{% endraw %}
+
+3. When suggesting suggested code:
+  - DO NOT include three backticks: {%raw%}\`\`\`{%endraw%} in your suggestion. Treat the suggested code AS IS.
+  - Each element in the returned list is a COMPLETE and INDEPENDENT code snippet.
+  - MUST be a valid json format. Don't be lazy!
+  - Only return the new code to be inserted.
+  - Your returned code should not overlap with the original code in any way. Don't be lazy!
+  - Please strictly check the code around the position and ensure that the complete code after insertion is correct. Don't be lazy!
+  - Do not return the entire file content or any surrounding code.
+  - Do not include any explanations, comments, or line numbers in your response.
+  - Ensure the suggested code fits seamlessly with the existing code structure and indentation.
+  - If there are no recommended modifications, return an empty list.
+
+Remember to ONLY RETURN the suggested code snippet, without any additional formatting or explanation.`
+}
+
 async function askAI(rolesMessages: any) {
   try {
     const openai = new OpenAI({
@@ -33,7 +63,11 @@ export interface ProjectInformation {
 
 export async function getProjectInformation(allFiles: string[]): Promise<ProjectInformation> {
   const response = await askAI([
-    { role: 'system', content: `
+    {
+      role: 'system',
+      content: `
+        ${defaultSystemPrompt}
+
         ## Role  
         You are a expert of the frontend project framework, you can help me to check this proejct use which framework to build, and get me this project's config file.
 
@@ -86,7 +120,8 @@ export async function getProjectInformation(allFiles: string[]): Promise<Project
             configFile: "./src/vue.config.ts",
             mainFile: "./src/main.ts"
           }
-      ` },
+      `,
+    },
     { role: 'user', content: `[${allFiles.join(', ')}]` },
   ])
 
@@ -99,9 +134,14 @@ export async function getProjectInformation(allFiles: string[]): Promise<Project
 
 export async function getNewConfigFileContentWithI18nPlugin(builder: string, content: string) {
   const response = await askAI([
-    { role: 'system', content: `
+    {
+      role: 'system',
+      content: `
+        ${defaultSystemPrompt}
+
         ## Role  
-        You are a expert of senior frontend developer, you can help user to update the conig file of the project, follow the below documenation, and add the i18n plugin to the config file.
+        You are a expert of senior frontend developer, you can help user to update the conig file of the project,
+         follow the below documenation, and add the i18n plugin to the config file, then return the modified changed format.
           
         ## Objective
         - Add the i18n plugin to the config file.
@@ -123,7 +163,8 @@ export async function getNewConfigFileContentWithI18nPlugin(builder: string, con
             /* options */
           })
         ]
-        ` },
+        `,
+    },
     { role: 'user', content: `[builder: ${builder}, config file content: ${content}]` },
   ])
 
@@ -132,7 +173,11 @@ export async function getNewConfigFileContentWithI18nPlugin(builder: string, con
 
 export async function getNewMainFileContent(defaultLocale: string, content: string) {
   const response = await askAI([
-    { role: 'system', content: `
+    {
+      role: 'system',
+      content: `
+        ${defaultSystemPrompt}
+
         ## Role  
         You are a expert of senior frontend developer, you can help user to update the main file of the project, follow the below documenation, and add the i18n instance to the main file.
 
@@ -143,7 +188,7 @@ export async function getNewMainFileContent(defaultLocale: string, content: stri
         ## Constraints
         - Provide the new content of the main file without any additional words or formatting symbols like \`{{ code }}\` or \` \`\`\` \`.
 
-        ### Installation
+        ### Document
         #### add the i18n import to the config file
         import { createI18n } from 'vue-i18n';
 
@@ -155,7 +200,8 @@ export async function getNewMainFileContent(defaultLocale: string, content: stri
 
         ### add the i18n instance to the vue app
         app.use(i18n);
-      ` },
+      `,
+    },
     { role: 'user', content: `[main file content: ${content}]` },
   ])
 
@@ -164,7 +210,9 @@ export async function getNewMainFileContent(defaultLocale: string, content: stri
 
 export async function getNewVueFileContent(locales: string[], content: string): Promise<string | null> {
   const response = await askAI([
-    { role: 'system', content: `
+    {
+      role: 'system',
+      content: `
         ## Role
         You are a expert of senior frontend developer, you can help user to update the vue file of the project, follow the below documenation, help user to translate the vue file.
 
@@ -276,9 +324,13 @@ export async function getNewVueFileContent(locales: string[], content: string): 
         </template>
       Output:
       null
-      ` },
-    { role: 'user', content: `locales: ${locales.join(', ')}
-                                vue file content: ${content}` },
+      `,
+    },
+    {
+      role: 'user',
+      content: `locales: ${locales.join(', ')}
+                                vue file content: ${content}`,
+    },
   ])
 
   if (response === 'null') {

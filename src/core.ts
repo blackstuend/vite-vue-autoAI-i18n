@@ -7,6 +7,7 @@ import glob from 'fast-glob'
 import fs from 'fs-extra'
 import { getNewConfigFileContentWithI18nPlugin, getNewMainFileContent, getNewVueFileContent } from './ai'
 import { saveCache } from './cache'
+import { CodeModifier } from './code'
 import { getAllFiles } from './file'
 
 export async function getProjectContext(options: {
@@ -122,11 +123,17 @@ export async function modifyConfigFile(builder: string, file: string) {
 
   const newContent = await getNewConfigFileContentWithI18nPlugin(builder, content)
 
+  const modifier = new CodeModifier(content)
+
+  modifier.addReplacement(1, 1, newContent)
+
+  const result = modifier.applyChanges()
+
   if (!newContent) {
     throw new Error('Failed to get new content of the config file')
   }
 
-  fs.writeFileSync(file, newContent)
+  fs.writeFileSync(file, result)
 }
 
 export async function modifyVueFiles(files: string[], locales: string[], cache: CacheData) {
