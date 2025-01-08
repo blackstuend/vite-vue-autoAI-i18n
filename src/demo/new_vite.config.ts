@@ -1,31 +1,31 @@
-const text = `
 /// <reference types="vitest" />
 
-import path from 'node:path';
-import { defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite';
-import Vue from '@vitejs/plugin-vue';
-import Components from 'unplugin-vue-components/vite';
-import AutoImport from 'unplugin-auto-import/vite';
-import UnoCSS from 'unocss/vite';
-import VueMacros from 'unplugin-vue-macros/vite';
-import VueRouter from 'unplugin-vue-router/vite';
-import { VueRouterAutoImports } from 'unplugin-vue-router';
-import Layouts from 'vite-plugin-vue-layouts';
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
-import viteCompression from 'vite-plugin-compression';
-import { VitePWA } from 'vite-plugin-pwa';
-import { sentryVitePlugin } from '@sentry/vite-plugin';
-import elementPlusOptimizeDepsPlugin from 'vite-plugin-element-plus-optimize-deps';
-import Package from './package.json';
+import path from 'node:path'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
+import Vue from '@vitejs/plugin-vue'
+import UnoCSS from 'unocss/vite'
+import vueI18n from '@intlify/vite-plugin-vue-i18n';
+import AutoImport from 'unplugin-auto-import/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import Components from 'unplugin-vue-components/vite'
+import VueMacros from 'unplugin-vue-macros/vite'
+import { VueRouterAutoImports } from 'unplugin-vue-router'
+import VueRouter from 'unplugin-vue-router/vite'
+import { defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite'
+import viteCompression from 'vite-plugin-compression'
+import elementPlusOptimizeDepsPlugin from 'vite-plugin-element-plus-optimize-deps'
+import { VitePWA } from 'vite-plugin-pwa'
+import Layouts from 'vite-plugin-vue-layouts'
+import Package from './package.json'
 
 export default defineConfig(({ mode }) => {
-  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) };
+  process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
-  const APP_VERSION = JSON.stringify(Package.version);
-  const APP_BUILD_TIME = Date.now();
-  const releaseVersion = `imhlo@${APP_VERSION.replace(/"/g, '')}+${APP_BUILD_TIME}`;
-  // eslint-disable-next-line no-console
-  console.log(`=====[mode: ${mode}, release version: ${releaseVersion}]=====`);
+  const APP_VERSION = JSON.stringify(Package.version)
+  const APP_BUILD_TIME = Date.now()
+  const releaseVersion = `imhlo@${APP_VERSION.replace(/"/g, '')}+${APP_BUILD_TIME}`
+
+  console.log(`=====[mode: ${mode}, release version: ${releaseVersion}]=====`)
 
   return {
     resolve: {
@@ -45,6 +45,7 @@ export default defineConfig(({ mode }) => {
               propsDestructure: true,
               defineModel: true,
             },
+      vueI18n(),
           }),
         },
       }),
@@ -102,12 +103,13 @@ export default defineConfig(({ mode }) => {
       VueRouter({
         importMode: (path: string) => {
           if (
-            path.includes('pages/directory.vue') ||
-            path.includes('pages/setting.vue') ||
-            path.includes('pages/message.vue')
-          )
-            return 'sync';
-          return 'async';
+            path.includes('pages/directory.vue')
+            || path.includes('pages/setting.vue')
+            || path.includes('pages/message.vue')
+          ) {
+            return 'sync'
+          }
+          return 'async'
         },
       }),
 
@@ -162,19 +164,19 @@ export default defineConfig(({ mode }) => {
 
       splitVendorChunkPlugin(),
 
-      ['pre'].includes(mode) &&
-        sentryVitePlugin({
-          org: 'qiyi-technology-co-ltd',
-          project: 'hlo-imhlo',
-          authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
-          sourcemaps: {
-            filesToDeleteAfterUpload: ['dist/**/*.js.map'],
-          },
-          release: {
-            name: releaseVersion,
-          },
-          debug: true,
-        }),
+      ['pre'].includes(mode)
+      && sentryVitePlugin({
+        org: 'qiyi-technology-co-ltd',
+        project: 'hlo-imhlo',
+        authToken: process.env.VITE_SENTRY_AUTH_TOKEN,
+        sourcemaps: {
+          filesToDeleteAfterUpload: ['dist/**/*.js.map'],
+        },
+        release: {
+          name: releaseVersion,
+        },
+        debug: true,
+      }),
     ],
 
     server: {
@@ -183,31 +185,31 @@ export default defineConfig(({ mode }) => {
           target: process.env.VITE_PROXY_API,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/api/, '/api'),
+          rewrite: proxyPath => proxyPath.replace(/^\/api/, '/api'),
         },
         '/file': {
           target: process.env.VITE_BASIC_URI,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/file/, '/file'),
+          rewrite: proxyPath => proxyPath.replace(/^\/file/, '/file'),
         },
         '/player': {
           target: process.env.VITE_BASIC_URI,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/player/, '/player'),
+          rewrite: proxyPath => proxyPath.replace(/^\/player/, '/player'),
         },
         '/bnc': {
           target: process.env.VITE_PROXY_BNC_API,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/bnc/, ''),
+          rewrite: proxyPath => proxyPath.replace(/^\/bnc/, ''),
         },
         '/hai': {
           target: process.env.VITE_PROXY_BNC_API,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/hai/, ''),
+          rewrite: proxyPath => proxyPath.replace(/^\/hai/, ''),
         },
       },
     },
@@ -238,25 +240,25 @@ export default defineConfig(({ mode }) => {
           target: process.env.VITE_PROXY_API,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/api/, '/api'),
+          rewrite: proxyPath => proxyPath.replace(/^\/api/, '/api'),
         },
         '/file': {
           target: process.env.VITE_BASIC_URI,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/file/, '/file'),
+          rewrite: proxyPath => proxyPath.replace(/^\/file/, '/file'),
         },
         '/player': {
           target: process.env.VITE_BASIC_URI,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/player/, '/player'),
+          rewrite: proxyPath => proxyPath.replace(/^\/player/, '/player'),
         },
         '/bnc': {
           target: process.env.VITE_PROXY_BNC_API,
           changeOrigin: true,
           secure: false,
-          rewrite: (proxyPath) => proxyPath.replace(/^\/bnc/, ''),
+          rewrite: proxyPath => proxyPath.replace(/^\/bnc/, ''),
         },
       },
     },
@@ -280,11 +282,10 @@ export default defineConfig(({ mode }) => {
       },
       manualChunks: (id: string) => {
         if (id.includes('node_modules')) {
-          return 'vendor';
+          return 'vendor'
         }
-        return 'index';
+        return 'index'
       },
     },
-  };
-});
-`
+  }
+})

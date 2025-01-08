@@ -1,9 +1,15 @@
 import process from 'node:process'
 import dotenv from 'dotenv'
+import fs from 'fs-extra'
 import OpenAI from 'openai'
 import { extractAiResponseJSON } from './common'
 
 dotenv.config()
+
+function defaultSystemPrompt() {
+  const file = fs.readFileSync('defaultPrompt', 'utf-8')
+  return file
+}
 
 async function askAI(rolesMessages: any) {
   try {
@@ -99,35 +105,47 @@ export async function getProjectInformation(allFiles: string[]): Promise<Project
 
 export async function getNewConfigFileContentWithI18nPlugin(builder: string, content: string) {
   const response = await askAI([
-    { role: 'system', content: `
+    { role: 'system', content: `        
         ## Role  
-        You are a expert of senior frontend developer, you can help user to update the conig file of the project, follow the below documenation, and add the i18n plugin to the config file.
+        You are a expert software developer.
+        Your task is help user to add @intlify/vite-plugin-vue-i18n to the config file
           
         ## Objective
-        - Add the i18n plugin to the config file.
-        - Return the new content of the config file
-
+        - Import the @intlify/vite-plugin-vue-i18n plugin to the config file
+        - Add the i18n plugin to the plugins array
+        
         ## Constraints
-        - Don't remove the existing code(like comments or eslint rules), just add the i18n instance to the main file
-        - Provide the new content of the config file without any additional words or formatting symbols like \`{{ code }}\` or \` \`\`\` \`.
+        - Please make sure the vueI18n plugin is added to the plugins array in first layer
 
         ## Document
+      
+        \`\`\
+        import { defineConfig } from 'vite'
+        import { resolve, dirname } from 'node:path'
+        import { fileURLToPath } from 'url'
+        import vue from '@vitejs/plugin-vue'
+        import vueI18n from '@intlify/vite-plugin-vue-i18n'
 
-        ### Installation
-        #### add the i18n import to the config file
-        import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+        export default defineConfig({
+          plugins: [
+            vue(), // you need to install \`@vitejs/plugin-vue\`
+            vueI18n({
+            })
+          ]
+        }) 
+        \`\`\`
 
-        #### add the i18n plugin to the plugins array
-        plugins: [
-          VueI18nPlugin({
-            /* options */
-          })
-        ]
+        ${defaultSystemPrompt()}
         ` },
     { role: 'user', content: `[builder: ${builder}, config file content: ${content}]` },
   ])
 
-  return response
+  if (!response) {
+    throw new Error('Failed to get new config file content with i18n plugin')
+  }
+
+  console.log('response', response)
+  return extractAiResponseJSON(response)
 }
 
 export async function getNewMainFileContent(defaultLocale: string, content: string) {

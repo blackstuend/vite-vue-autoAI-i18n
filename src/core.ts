@@ -120,13 +120,27 @@ export async function getMainFile(allFiles: string[]): Promise<string | undefine
 export async function modifyConfigFile(builder: string, file: string) {
   const content = await fs.readFile(file, 'utf-8')
 
-  const newContent = await getNewConfigFileContentWithI18nPlugin(builder, content)
+  const changes = await getNewConfigFileContentWithI18nPlugin(builder, content)
+
+  const modifier = new CodeModifier(content, changes as { action: 'replace' | 'add' | 'delete', line: number, content: string }[])
+
+  const newContent = modifier.applyChanges()
 
   if (!newContent) {
     throw new Error('Failed to get new content of the config file')
   }
 
   fs.writeFileSync(file, newContent)
+}
+
+export async function modifyConfigFileTest(builder: string, file: string) {
+  const changes = await getNewConfigFileContentWithI18nPlugin(builder, file)
+
+  console.log('changes', changes)
+  const modifier = new CodeModifier(file, changes)
+  const newContent = modifier.applyChanges()
+
+  return newContent
 }
 
 export async function modifyVueFiles(files: string[], locales: string[], cache: CacheData) {
@@ -207,4 +221,48 @@ export async function installDependencies() {
     shell: true,
     cwd: process.cwd(),
   })
+}
+
+export class CodeModifier {
+  private lines: string[]
+  private changes: { action: 'add' | 'replace' | 'delete', line: number, content: string }[]
+
+  constructor(content: string, changes: { action: 'add' | 'replace' | 'delete', line: number, content: string }[]) {
+    this.lines = content.split('\n')
+    this.changes = changes
+  }
+
+  addChange(action: 'add' | 'replace' | 'delete', line: number, content: string): void {
+    this.changes.push({
+      action,
+      line,
+      content,
+    })
+  }
+
+  applyChanges(): string {
+    // Sort changes from bottom to top to avoid line number shifting
+    this.changes.sort((a, b) => b.line - a.line)
+
+    for (const change of this.changes) {
+      switch (change.action) {
+        case 'add':
+          // Insert new line after specified line
+          this.lines[change.line] += change.content
+          break
+
+        case 'replace':
+          // Replace entire line
+          this.lines[change.line] = change.content
+          break
+
+        case 'delete':
+          // Remove the line
+          this.lines.splice(change.line, 1)
+          break
+      }
+    }
+
+    return this.lines.join('\n')
+  }
 }
