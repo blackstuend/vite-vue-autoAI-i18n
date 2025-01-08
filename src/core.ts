@@ -143,6 +143,7 @@ export async function modifyVueFiles(files: string[], locales: string[], cache: 
       cache.finishFiles.push(file)
 
       saveCache(cache)
+      console.log('The file is empty, skip')
       continue
     }
 
@@ -152,6 +153,7 @@ export async function modifyVueFiles(files: string[], locales: string[], cache: 
       cache.finishFiles.push(file)
 
       saveCache(cache)
+      console.log('The file not need to be translated, skip')
       continue
     }
 

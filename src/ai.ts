@@ -108,7 +108,7 @@ export async function getNewConfigFileContentWithI18nPlugin(builder: string, con
         - Return the new content of the config file
 
         ## Constraints
-        - Don't remove the existing setting and code in the config file, just add the i18n plugin to the project, keep the existing code and setting
+        - Don't remove the existing code(like comments or eslint rules), just add the i18n instance to the main file
         - Provide the new content of the config file without any additional words or formatting symbols like \`{{ code }}\` or \` \`\`\` \`.
 
         ## Document
@@ -141,6 +141,7 @@ export async function getNewMainFileContent(defaultLocale: string, content: stri
         - Return the new content of the main file
 
         ## Constraints
+        - Don't remove the existing code(like comments or eslint rules), just add the i18n instance to the main file
         - Provide the new content of the main file without any additional words or formatting symbols like \`{{ code }}\` or \` \`\`\` \`.
 
         ### Installation
@@ -276,6 +277,41 @@ export async function getNewVueFileContent(locales: string[], content: string): 
         </template>
       Output:
       null
+
+      Example 4(translate with variable):
+        * user Input:
+        locales: [en, ja]
+        vue file content:
+        <template>
+          <div>
+            <p>hello {{ msg }}</p>
+          </div>
+        </template>
+        <script setup lang="ts">
+        const msg = 'world'
+        </script>
+
+      Output:
+      <template>
+        <div>
+          <p>{{ t('hello', { msg: 'hello' }) }}</p>
+        </div>
+      </template>
+      <script setup>
+        import { useI18n } from 'vue-i18n'
+
+        const { t } = useI18n()
+      </script>
+      <i18n>
+      {
+        "en": {
+          "hello": "{msg} world"
+        },
+        "ja": {
+          "hello": "{msg} 世界"
+        }
+      }
+      </i18n>
       ` },
     { role: 'user', content: `locales: ${locales.join(', ')}
                                 vue file content: ${content}` },

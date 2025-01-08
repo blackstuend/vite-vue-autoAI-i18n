@@ -53,7 +53,7 @@ async function main() {
         type: 'list',
         name: 'defaultLocale',
         message: 'What is your default locale?',
-        choices: LOCALES.map(locale => locale.value),
+        choices: LOCALES.filter(locale => locales.includes(locale.value)),
       },
     ])
 
