@@ -2,7 +2,7 @@ import process from 'node:process'
 import dotenv from 'dotenv'
 import fs from 'fs-extra'
 import OpenAI from 'openai'
-import { extractAiResponseJSON } from './common'
+import { getSearchReplaceBlocks, modifyCode } from './common'
 
 dotenv.config()
 
@@ -106,46 +106,49 @@ export async function getProjectInformation(allFiles: string[]): Promise<Project
 export async function getNewConfigFileContentWithI18nPlugin(builder: string, content: string) {
   const response = await askAI([
     { role: 'system', content: `        
-        ## Role  
-        You are a expert software developer.
-        Your task is help user to add @intlify/vite-plugin-vue-i18n to the config file
-          
-        ## Objective
-        - Import the @intlify/vite-plugin-vue-i18n plugin to the config file
-        - Add the i18n plugin to the plugins array
-        
-        ## Constraints
-        - Please make sure the vueI18n plugin is added to the plugins array in first layer
-
-        ## Document
-      
-        \`\`\
-        import { defineConfig } from 'vite'
-        import { resolve, dirname } from 'node:path'
-        import { fileURLToPath } from 'url'
-        import vue from '@vitejs/plugin-vue'
-        import vueI18n from '@intlify/vite-plugin-vue-i18n'
-
-        export default defineConfig({
-          plugins: [
-            vue(), // you need to install \`@vitejs/plugin-vue\`
-            vueI18n({
-            })
-          ]
-        }) 
-        \`\`\`
-
         ${defaultSystemPrompt()}
         ` },
-    { role: 'user', content: `[builder: ${builder}, config file content: ${content}]` },
+    { role: 'user', content: `
+      Follow this documentation, set the i18n plugin to the vite config plugins
+      
+      ## Documentation
+      \`\`\
+      import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+
+      export default defineConfig({
+        plugins: [
+          VueI18nPlugin({
+            /* options */
+          })
+        ]
+      })
+      \`\`\`
+      
+
+      Code: 
+      \`\`\`
+      ${content}
+      \`\`\`
+      ` },
   ])
 
   if (!response) {
     throw new Error('Failed to get new config file content with i18n plugin')
   }
 
-  console.log('response', response)
-  return extractAiResponseJSON(response)
+  if (!response) {
+    return content
+  }
+
+  const matches = getSearchReplaceBlocks(response)
+
+  console.log('newResponse', matches)
+
+  if (!matches) {
+    return content
+  }
+
+  return modifyCode(content, matches)
 }
 
 export async function getNewMainFileContent(defaultLocale: string, content: string) {

@@ -136,11 +136,11 @@ export async function modifyConfigFile(builder: string, file: string) {
 export async function modifyConfigFileTest(builder: string, file: string) {
   const changes = await getNewConfigFileContentWithI18nPlugin(builder, file)
 
-  console.log('changes', changes)
-  const modifier = new CodeModifier(file, changes)
-  const newContent = modifier.applyChanges()
+  return changes
+  // const modifier = new CodeModifier(file, changes)
+  // const newContent = modifier.applyChanges()
 
-  return newContent
+  // return newContent
 }
 
 export async function modifyVueFiles(files: string[], locales: string[], cache: CacheData) {

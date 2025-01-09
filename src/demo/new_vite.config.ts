@@ -4,13 +4,13 @@ import path from 'node:path'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
-import vueI18n from '@intlify/vite-plugin-vue-i18n';
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import VueMacros from 'unplugin-vue-macros/vite'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
 import VueRouter from 'unplugin-vue-router/vite'
+import { ElementPlusResolver } from 'unpugin-vue-components/resolvers'
 import { defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import elementPlusOptimizeDepsPlugin from 'vite-plugin-element-plus-optimize-deps'
@@ -45,7 +45,6 @@ export default defineConfig(({ mode }) => {
               propsDestructure: true,
               defineModel: true,
             },
-      vueI18n(),
           }),
         },
       }),
@@ -160,6 +159,10 @@ export default defineConfig(({ mode }) => {
         threshold: 10240,
         algorithm: 'gzip',
         ext: '.gz',
+      }),
+
+      VueI18nPlugin({
+        /* options */
       }),
 
       splitVendorChunkPlugin(),
