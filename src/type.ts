@@ -1,15 +1,8 @@
+import type { Cache } from './cache'
+
 export interface Locale {
   name: string
   code: string
-}
-
-export interface Cache {
-  context: Context
-  finish: {
-    builder: boolean
-    main: boolean
-    files: string[]
-  }
 }
 
 export interface Context {
@@ -30,4 +23,20 @@ export interface Context {
   needGenCodeInBuilderConfig: boolean
   // determine if generate i18n for main file
   needGenCodeInMain: boolean
+  // determine if install dependencies
+  needInstallDependencies: boolean
+}
+
+export abstract class Worker {
+  ctx: Context
+
+  constructor(ctx: Context) {
+    this.ctx = ctx
+  }
+
+  abstract get dependencies(): string[]
+
+  abstract handleMainConfig(): Promise<void>
+  abstract handleBuilderConfig(): Promise<void>
+  abstract handlePrimaryFile(content: string): Promise<void>
 }

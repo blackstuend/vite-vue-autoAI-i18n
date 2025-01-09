@@ -8,7 +8,7 @@ export function getReplaceSystemPrompt() {
   if (replaceSystemPrompt)
     return replaceSystemPrompt
 
-  const prompt = fs.readFileSync(path.resolve('prompt', 'replace.md'), 'utf-8')
+  const prompt = fs.readFileSync(path.resolve(__dirname, 'prompt', 'replace.md'), 'utf-8')
 
   replaceSystemPrompt = prompt
   return prompt

@@ -1,0 +1,34 @@
+{
+  "context": {
+    "cacheFile": ".i18n-cache.json",
+    "needGenCodeInBuilderConfig": true,
+    "needGenCodeInMain": true,
+    "useCache": true,
+    "needInstallDependencies": true,
+    "framework": "vue",
+    "builder": "vite",
+    "builderConfigFile": "vite.config.ts",
+    "mainFile": "src/main.ts",
+    "glob": "**/*.{vue,ts,js,jsx,tsx,json,html,css,scss,less,styl,stylus}",
+    "defaultLocale": {
+      "code": "en",
+      "name": "English"
+    },
+    "locales": [
+      {
+        "code": "en",
+        "name": "English"
+      },
+      {
+        "code": "zh",
+        "name": "Chinese"
+      }
+    ]
+  },
+  "finish": {
+    "install": false,
+    "builder": false,
+    "main": false,
+    "files": []
+  }
+}
