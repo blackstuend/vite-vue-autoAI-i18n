@@ -1,268 +1,90 @@
-import type { CacheData } from './cache'
-import type { Builder, ProjectContext } from './types'
+/* eslint-disable unused-imports/no-unused-vars */
+import type { Cache, Context } from './type'
 import path from 'node:path'
-import process from 'node:process'
-import { execa } from 'execa'
-import glob from 'fast-glob'
+import chalk from 'chalk'
 import fs from 'fs-extra'
-import { getNewConfigFileContentWithI18nPlugin, getNewMainFileContent, getNewVueFileContent } from './ai'
-import { saveCache } from './cache'
-import { getAllFiles } from './file'
+import { log } from './utils'
 
-export async function getProjectContext(options: {
-  locales: string[]
-  defaultLocale: string
-}): Promise<ProjectContext> {
-  const cwd = process.cwd()
-
-  // get all files include the cwd
-  const allFiles = getAllFiles()
-
-  const packageJSONPath = path.join(cwd, 'package.json')
-
-  const builder = await getBuilder(packageJSONPath, allFiles)
-  if (!builder) {
-    throw new Error('Failed to get builder, please check your project is vue-cli or vite or webpack or nuxt')
+function _handleCache(ctx: Context): Cache {
+  // check cache file exist
+  const cacheFile = ctx.cacheFile
+  if (!cacheFile) {
+    throw new Error('Cache file is required')
   }
 
-  const configFile = await getConfigFile(builder, allFiles)
-
-  if (!configFile) {
-    throw new Error('Failed to get config file')
+  const defaultCache: Cache = {
+    context: ctx,
+    finish: {
+      builder: false,
+      main: false,
+      files: [],
+    },
   }
 
-  const mainFile = await getMainFile(allFiles)
-  if (builder === 'vite' || builder === 'webpack' || builder === 'vue-cli') {
-    if (!mainFile) {
-      throw new Error('Failed to get main file, please check your project have main.js or main.ts')
-    }
+  if (!fs.existsSync(cacheFile)) {
+    log(chalk.red(`Cache file ${cacheFile} not found, auto create it`))
+
+    fs.writeFileSync(cacheFile, JSON.stringify(defaultCache, null, 2))
+
+    return defaultCache
   }
 
-  return {
-    mainFile,
-    locales: options.locales,
-    defaultLocale: options.defaultLocale,
-    allFiles,
-    configFile,
-    builder,
+  try {
+    const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf-8')) as Cache
+    return cache
+  }
+  catch (error: any) {
+    log(chalk.red(`Cache file ${cacheFile} is invalid, auto create it`))
+    fs.writeFileSync(cacheFile, JSON.stringify(defaultCache, null, 2))
+    return defaultCache
   }
 }
 
-export async function getConfigFile(builder: Builder, allFiles: string[]): Promise<string | undefined> {
-  if (builder === 'vite') {
-    return allFiles.find(file => file.endsWith('vite.config.ts') || file.endsWith('vite.config.js')) || ''
-  }
-  else if (builder === 'webpack') {
-    return allFiles.find(file => file.endsWith('webpack.config.ts') || file.endsWith('webpack.config.js')) || ''
-  }
-  else if (builder === 'nuxt') {
-    return allFiles.find(file => file.endsWith('nuxt.config.ts') || file.endsWith('nuxt.config.js')) || ''
-  }
-  else if (builder === 'vue-cli') {
-    return allFiles.find(file => file.endsWith('vue.config.js') || file.endsWith('vue.config.ts')) || ''
+export async function projectGenI18n(context: Context) {
+  const defaultContext: Partial<Context> = {
+    cacheFile: '.i18n-cache.json',
+    needGenCodeInBuilderConfig: true,
+    needGenCodeInMain: true,
+    useCache: true,
   }
 
-  return undefined
+  const ctx = {
+    ...defaultContext,
+    ...context,
+  }
+
+  let cache: Cache | undefined
+
+  if (ctx.useCache) {
+    log(chalk.green('Wait for loading cache...'))
+    cache = _handleCache(ctx)
+    log(chalk.green('Cache loaded'))
+  }
+
+  await genI18nInBuilder(ctx, cache)
 }
 
-export async function getBuilder(packageJSONPath: string, allFils: string[]): Promise<Builder> {
-  // check package.json exist
-  if (fs.existsSync(packageJSONPath)) {
-    const packageJSON = await fs.readFile(packageJSONPath, 'utf-8')
-
-    try {
-      const packageJSONObj = JSON.parse(packageJSON)
-      if ('scripts' in packageJSONObj && typeof packageJSONObj.scripts === 'object') {
-        for (const script in packageJSONObj.scripts) {
-          const value = packageJSONObj.scripts[script]
-          if (typeof value === 'string' && value.includes('vite')) {
-            return 'vite'
-          }
-          else if (typeof value === 'string' && value.includes('webpack')) {
-            return 'webpack'
-          }
-          else if (typeof value === 'string' && value.includes('nuxt')) {
-            return 'nuxt'
-          }
-          else if (typeof value === 'string' && value.includes('vue-cli-service')) {
-            return 'vue-cli'
-          }
-        }
-      }
-    }
-    catch (error) {
-      throw new Error(`Failed to parse package.json, error: ${error}`)
-    }
-  }
-
-  for (const file of allFils) {
-    if (file.endsWith('vite.config.ts') || file.endsWith('vite.config.js')) {
-      return 'vite'
-    }
-    else if (file.endsWith('webpack.config.ts') || file.endsWith('webpack.config.js')) {
-      return 'webpack'
-    }
-    else if (file.endsWith('nuxt.config.ts') || file.endsWith('nuxt.config.js')) {
-      return 'nuxt'
-    }
-    else if (file.endsWith('vue.config.js') || file.endsWith('vue.config.ts')) {
-      return 'vue-cli'
-    }
-  }
-
-  return undefined
-}
-
-export async function getMainFile(allFiles: string[]): Promise<string | undefined> {
-  return allFiles.find(file => file.endsWith('main.ts') || file.endsWith('main.js')) || undefined
-}
-
-export async function modifyConfigFile(builder: string, file: string) {
-  const content = await fs.readFile(file, 'utf-8')
-
-  const changes = await getNewConfigFileContentWithI18nPlugin(builder, content)
-
-  const modifier = new CodeModifier(content, changes as { action: 'replace' | 'add' | 'delete', line: number, content: string }[])
-
-  const newContent = modifier.applyChanges()
-
-  if (!newContent) {
-    throw new Error('Failed to get new content of the config file')
-  }
-
-  fs.writeFileSync(file, newContent)
-}
-
-export async function modifyConfigFileTest(builder: string, file: string) {
-  const changes = await getNewConfigFileContentWithI18nPlugin(builder, file)
-
-  return changes
-  // const modifier = new CodeModifier(file, changes)
-  // const newContent = modifier.applyChanges()
-
-  // return newContent
-}
-
-export async function modifyVueFiles(files: string[], locales: string[], cache: CacheData) {
-  for (const file of files) {
-    if (!file.endsWith('.vue') || cache.finishFiles.includes(file)) {
-      continue
-    }
-
-    console.log('Start processing vue file: ', file)
-
-    const content = await fs.readFile(file, 'utf-8')
-
-    if (!content) {
-      cache.finishFiles.push(file)
-
-      saveCache(cache)
-      console.log('The file is empty, skip')
-      continue
-    }
-
-    const newContent = await getNewVueFileContent(locales, content)
-
-    if (!newContent || newContent === 'null') {
-      cache.finishFiles.push(file)
-
-      saveCache(cache)
-      console.log('The file not need to be translated, skip')
-      continue
-    }
-
-    fs.writeFileSync(file, newContent)
-
-    cache.finishFiles.push(file)
-
-    saveCache(cache)
-
-    console.log('Modify vue file success,file path: ', file)
-  }
-}
-
-export async function modifyMainFile(file?: string, defaultLocale?: string) {
-  if (!file || !defaultLocale) {
+async function genI18nInBuilder(ctx: Context, cache?: Cache) {
+  if (!ctx.needGenCodeInBuilderConfig) {
     return
   }
 
-  const content = await fs.readFile(file, 'utf-8')
+  if (cache?.finish.builder) {
+    log(chalk.green('i18n in builder config has been generated, skip...'))
 
-  const newContent = await getNewMainFileContent(defaultLocale, content)
-
-  if (!newContent) {
-    throw new Error('Failed to get new content of the main file')
+    return
   }
 
-  await fs.writeFile(file, newContent)
-}
+  // get builder config documet
+  const configDocument = path.resolve('prompt', 'builder', `${ctx.builder}-${ctx.framework}.md`)
 
-export async function installDependencies() {
-  const cwd = process.cwd()
-
-  let packageManager = 'npm'
-  // use lock file to check package manager
-  const lockFileMap = {
-    'package-lock.json': 'npm',
-    'yarn.lock': 'yarn',
-    'pnpm-lock.yaml': 'pnpm',
+  if (!fs.existsSync(configDocument)) {
+    log(chalk.red(`Builder config document ${configDocument} not found`))
   }
 
-  const lockFile = Object.keys(lockFileMap).find(file => fs.existsSync(path.join(cwd, file)))
+  const documenation = fs.readFileSync(configDocument, 'utf-8')
 
-  if (lockFile) {
-    packageManager = lockFileMap[lockFile as keyof typeof lockFileMap]
-  }
-
-  const installCommand = packageManager === 'npm' ? 'npm install' : packageManager === 'yarn' ? 'yarn add' : 'pnpm add'
-
-  const command = `${installCommand} --save-dev @intlify/unplugin-vue-i18n vue-i18n`
-  await execa(command, {
-    shell: true,
-    cwd: process.cwd(),
-  })
-}
-
-export class CodeModifier {
-  private lines: string[]
-  private changes: { action: 'add' | 'replace' | 'delete', line: number, content: string }[]
-
-  constructor(content: string, changes: { action: 'add' | 'replace' | 'delete', line: number, content: string }[]) {
-    this.lines = content.split('\n')
-    this.changes = changes
-  }
-
-  addChange(action: 'add' | 'replace' | 'delete', line: number, content: string): void {
-    this.changes.push({
-      action,
-      line,
-      content,
-    })
-  }
-
-  applyChanges(): string {
-    // Sort changes from bottom to top to avoid line number shifting
-    this.changes.sort((a, b) => b.line - a.line)
-
-    for (const change of this.changes) {
-      switch (change.action) {
-        case 'add':
-          // Insert new line after specified line
-          this.lines[change.line] += change.content
-          break
-
-        case 'replace':
-          // Replace entire line
-          this.lines[change.line] = change.content
-          break
-
-        case 'delete':
-          // Remove the line
-          this.lines.splice(change.line, 1)
-          break
-      }
-    }
-
-    return this.lines.join('\n')
+  if (cache) {
+    cache.finish.builder = true
   }
 }

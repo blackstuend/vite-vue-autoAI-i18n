@@ -1,10 +1,10 @@
 /// <reference types="vitest" />
 
 import path from 'node:path'
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
-import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import VueMacros from 'unplugin-vue-macros/vite'

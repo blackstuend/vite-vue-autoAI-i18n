@@ -7,6 +7,7 @@ export function modifyCode(originCode: string, matches: { search: string, replac
 }
 
 export function getSearchReplaceBlocks(response: string) {
+  console.log('response', response)
   const regex = /<<<<<<< SEARCH\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> REPLACE/g
   const matches = []
   let match

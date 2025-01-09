@@ -8,6 +8,9 @@ dependencies:
   '@antfu/eslint-config':
     specifier: ^3.12.1
     version: 3.12.1(@typescript-eslint/utils@8.19.0)(@vue/compiler-sfc@3.5.13)(eslint@9.17.0)(typescript@5.7.2)
+  chalk:
+    specifier: ^5.4.1
+    version: 5.4.1
   dotenv:
     specifier: ^16.4.7
     version: 16.4.7
@@ -1778,6 +1781,11 @@ packages:
     dependencies:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
+
+  /chalk@5.4.1:
+    resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+    dev: false
 
   /character-entities@2.0.2:
     resolution: {integrity: sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ==}

@@ -12,5 +12,5 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["oldsrc/**/*.ts"]
 }
