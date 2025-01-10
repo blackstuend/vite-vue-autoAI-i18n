@@ -68,14 +68,11 @@ export async function genCodeByReplacer(originCode: string, documentation: strin
 
   const result = await askAI(rolesMessages)
 
-  console.log('result', result)
   if (!result) {
     return null
   }
 
   const matches = getSearchReplaceBlocks(result)
-
-  console.log('matches', matches)
 
   if (!matches) {
     return null

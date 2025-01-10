@@ -3,11 +3,6 @@ export interface Locale {
   code: string
 }
 
-export interface File {
-  content: string
-  path: string
-}
-
 export interface Context {
   framework: 'vue' | 'react' | 'svelete'
   builder: 'vite' | 'webpack' | 'nuxt'
@@ -41,5 +36,5 @@ export abstract class Worker {
 
   abstract handleMainConfig(): Promise<void>
   abstract handleBuilderConfig(): Promise<void>
-  abstract handlePrimaryFile(file: File): Promise<void>
+  abstract handlePrimaryFile(filePath: string): Promise<void>
 }

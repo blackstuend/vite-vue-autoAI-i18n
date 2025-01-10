@@ -23,6 +23,6 @@ projectAutoI18n({
   useCache: false,
   cacheFile: '.i18n-cache.json',
   needGenCodeInBuilderConfig: true,
-  needGenCodeInMain: false,
+  needGenCodeInMain: true,
   needInstallDependencies: false,
 })

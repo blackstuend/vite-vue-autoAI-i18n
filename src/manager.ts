@@ -4,8 +4,7 @@ import process from 'node:process'
 import chalk from 'chalk'
 import { execa } from 'execa'
 import glob from 'fast-glob'
-import fs from 'fs-extra'
-import { exit, log } from './utils'
+import { exit, FileService, log } from './utils'
 
 import { WorkerForViteVue } from './worker'
 
@@ -144,12 +143,7 @@ export class Manager {
         }
       }
 
-      const content = await fs.readFile(file, 'utf-8')
-
-      await this.worker?.handlePrimaryFile({
-        content,
-        path: file,
-      })
+      await this.worker?.handlePrimaryFile(file)
 
       if (this.cache) {
         await this.cache.updateCacheFinish({

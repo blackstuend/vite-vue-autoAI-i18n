@@ -1,14 +1,13 @@
-import type { Context, File } from './type'
+import type { Context } from './type'
 import path from 'node:path'
 import process from 'node:process'
 import chalk from 'chalk'
-import fs from 'fs-extra'
 import { genCodeByReplacer } from './ai'
 import { prompt as builderDocsPrompt } from './prompt/builder/vite-vue'
 import { prompt as primaryFileDocsPrompt } from './prompt/file/vite-vue'
 import { prompt as mainDocsPrompt } from './prompt/main/vite-vue'
 import { Worker } from './type'
-import { log } from './utils'
+import { FileService, log } from './utils'
 
 export class WorkerForViteVue extends Worker {
   constructor(ctx: Context) {
@@ -22,7 +21,8 @@ export class WorkerForViteVue extends Worker {
   async handleBuilderConfig(): Promise<void> {
     const builderConfigPath = path.join(process.cwd(), this.ctx.builderConfigFile)
 
-    const builderConfig = fs.readFileSync(builderConfigPath, 'utf-8')
+    const fileService = new FileService(builderConfigPath)
+    const builderConfig = await fileService.getFileContent()
 
     const newCode = await genCodeByReplacer(builderConfig, builderDocsPrompt)
     if (!newCode || newCode === builderConfig) {
@@ -30,13 +30,15 @@ export class WorkerForViteVue extends Worker {
       return
     }
 
-    fs.writeFileSync(builderConfigPath, newCode)
+    await fileService.writeFile(newCode)
   }
 
   async handleMainConfig(): Promise<void> {
     const mainConfigPath = path.join(process.cwd(), this.ctx.mainFile)
 
-    const mainConfig = fs.readFileSync(mainConfigPath, 'utf-8')
+    const fileService = new FileService(mainConfigPath)
+
+    const mainConfig = await fileService.getFileContent()
 
     const newCode = await genCodeByReplacer(mainConfig, mainDocsPrompt(this.ctx.defaultLocale.code))
     if (!newCode || newCode === mainConfig) {
@@ -44,19 +46,26 @@ export class WorkerForViteVue extends Worker {
       return
     }
 
-    fs.writeFileSync(mainConfigPath, newCode)
+    await fileService.writeFile(newCode)
   }
 
-  async handlePrimaryFile(file: File): Promise<void> {
-    // inject the i18n tag to the end of the file
-    const code = `${file.content}\n` + `<i18n></i18n>\n`
+  async handlePrimaryFile(filePath: string): Promise<void> {
+    const fileService = new FileService(filePath)
 
-    const newCode = await genCodeByReplacer(code, primaryFileDocsPrompt(this.ctx.locales))
-    if (!newCode || newCode === file.content) {
-      log(chalk.yellow(`${file.path} had already been translated or no word need to be translated, don't need to handle it again`))
+    const code = await fileService.getFileContent()
+    // inject the i18n tag to the end of the file
+    const codeWithTag = `${code}\n` + `<i18n></i18n>\n`
+
+    const newCode = await genCodeByReplacer(codeWithTag, primaryFileDocsPrompt(this.ctx.locales))
+
+    if (!newCode || newCode === code) {
+      log(chalk.yellow(`${fileService.filePath} had already been translated or no word need to be translated, don't need to handle it again`))
       return
     }
 
-    fs.writeFileSync(file.path, newCode)
+    // sometimes ai forget to replace the <i18n></i18n> tag, so we need to remove it
+    const fixedCode = newCode.replace(/<i18n><\/i18n>/g, '')
+
+    await fileService.writeFile(fixedCode)
   }
 }
