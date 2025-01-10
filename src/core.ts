@@ -23,10 +23,14 @@ export async function projectAutoI18n(context: Context) {
   if (ctx.useCache) {
     cache = new Cache(ctx)
     await cache.init()
-    log(chalk.green('Cache loaded'))
+    log(chalk.green('Cache loaded successfully'))
   }
 
   const manager = new Manager(ctx, cache)
+
+  if (ctx.needInstallDependencies && !cache?.finish.install) {
+    await manager.installDependencies()
+  }
 
   if (ctx.needGenCodeInBuilderConfig && !cache?.finish.builder) {
     await manager.handleBuilderConfig()

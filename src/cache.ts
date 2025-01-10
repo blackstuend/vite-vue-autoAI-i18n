@@ -24,7 +24,7 @@ export class Cache {
   }
 
   async init() {
-    log(chalk.green('Wait for loading cache...'))
+    log('Wait for loading cache...')
 
     const cacheFile = this.ctx.cacheFile
     if (!fs.existsSync(cacheFile)) {
@@ -33,8 +33,8 @@ export class Cache {
       await this.save()
 
       log(chalk.green('Cache file created successfully'))
-      log(chalk.green('Before finish all task, don\'t delete this file'))
-      log(chalk.green('Cache file path:'), chalk.green(cacheFile))
+      log(chalk.yellow('Before finish all task, don\'t delete this file'))
+      log(chalk.white('Cache file path:'), chalk.green(cacheFile))
       return
     }
 

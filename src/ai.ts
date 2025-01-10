@@ -1,18 +1,11 @@
 import path from 'node:path'
 import process from 'node:process'
+import dotenv from 'dotenv'
 import fs from 'fs-extra'
 import OpenAI from 'openai'
+import { prompt as systemReplacePrompt } from './prompt/system/replace'
 
-let replaceSystemPrompt = ''
-export function getReplaceSystemPrompt() {
-  if (replaceSystemPrompt)
-    return replaceSystemPrompt
-
-  const prompt = fs.readFileSync(path.resolve(__dirname, 'prompt', 'replace.md'), 'utf-8')
-
-  replaceSystemPrompt = prompt
-  return prompt
-}
+dotenv.config()
 
 export async function askAI(rolesMessages: any): Promise<null | string> {
   try {
@@ -39,7 +32,7 @@ interface ReplaceMatch {
 }
 
 export function getSearchReplaceBlocks(response: string): ReplaceMatch[] {
-  const regex = /<<<<<<< SEARCH\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> REPLACE/g
+  const regex = /<{3,10} SEARCH\n([\s\S]*?)=======\n([\s\S]*?)>{3,10} REPLACE/gi
   const matches: ReplaceMatch[] = []
   let match
 
@@ -65,7 +58,7 @@ export function replaceCode(originCode: string, matches: ReplaceMatch[]) {
 export async function genCodeByReplacer(originCode: string, documentation: string): Promise<null | string> {
   const rolesMessages = [
     { role: 'system', content: `        
-        ${getReplaceSystemPrompt()}
+        ${systemReplacePrompt}
         ` },
     { role: 'user', content: `
         origin code: ${originCode}

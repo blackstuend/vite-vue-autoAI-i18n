@@ -55,6 +55,8 @@ export class Manager {
       }
     }
 
+    log(chalk.yellow('No package manager found, use npm as default'))
+
     return 'npm'
   }
 
@@ -68,15 +70,20 @@ export class Manager {
       return
     }
 
-    log(chalk.green('Installing dependencies...'))
-    log(chalk.green(`${dependencies.join(' ')}`))
+    log('Installing dependencies...', dependencies.join(' '))
 
     const packageManager = await this._getPackageManager()
     const installCommand = `${packageManager} install ${dependencies.join(' ')}`
-    await execa(installCommand, {
-      shell: true,
-      cwd: process.cwd(),
-    })
+    try {
+      await execa(installCommand, {
+        shell: true,
+        cwd: process.cwd(),
+      })
+    }
+    catch (error) {
+      log(chalk.red('Install failed, error:'), error)
+      exit()
+    }
 
     if (this.cache) {
       await this.cache.updateCacheFinish({
@@ -88,7 +95,7 @@ export class Manager {
   }
 
   async handleBuilderConfig() {
-    log(chalk.green('Generating code in builder config file...'))
+    log('Start to handle builder config file:', this.ctx.builderConfigFile, '...')
 
     await this.worker?.handleBuilderConfig()
 
@@ -98,12 +105,11 @@ export class Manager {
       })
     }
 
-    log(chalk.green(`Builder config file path: ${this.ctx.builderConfigFile}`))
     log(chalk.green('Code in builder config file generated successfully.'))
   }
 
   async handleMainConfig() {
-    log(chalk.green('Generating code in main file...'))
+    log(chalk.green('Start generating code in main file...'))
 
     await this.worker?.handleMainConfig()
 
@@ -122,17 +128,20 @@ export class Manager {
     })
 
     for (const file of primaryFiles) {
-      log(chalk.green(`Handling ${file}...`))
+      log(`Handling ${file}...`)
       if (this.cache) {
         if (this.cache.finish.files.includes(file)) {
-          log('File already handled.')
+          log('File already handled, skip it')
           continue
         }
       }
 
       const content = await fs.readFile(file, 'utf-8')
 
-      await this.worker?.handlePrimaryFile(content)
+      await this.worker?.handlePrimaryFile({
+        content,
+        path: file,
+      })
 
       if (this.cache) {
         await this.cache.updateCacheFinish({

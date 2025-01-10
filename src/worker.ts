@@ -1,9 +1,12 @@
-import type { Context } from './type'
+import type { Context, File } from './type'
 import path from 'node:path'
 import process from 'node:process'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import { genCodeByReplacer } from './ai'
+import { prompt as builderDocsPrompt } from './prompt/builder/vite-vue'
+import { prompt as primaryFileDocsPrompt } from './prompt/file/vite-vue'
+import { prompt as mainDocsPrompt } from './prompt/main/vite-vue'
 import { Worker } from './type'
 import { log } from './utils'
 
@@ -17,15 +20,13 @@ export class WorkerForViteVue extends Worker {
   }
 
   async handleBuilderConfig(): Promise<void> {
-    const builderConfigPath = path.join(process.cwd(), 'vite.config.ts')
-    const documentationPath = path.join(__dirname, './prompts/builder/vite-vue.md')
+    const builderConfigPath = path.join(process.cwd(), this.ctx.builderConfigFile)
 
     const builderConfig = fs.readFileSync(builderConfigPath, 'utf-8')
-    const documentation = fs.readFileSync(documentationPath, 'utf-8')
 
-    const newCode = await genCodeByReplacer(builderConfig, documentation)
-    if (!newCode) {
-      log(chalk.green('Builder config had already been handled, don\'t need to handle it again'))
+    const newCode = await genCodeByReplacer(builderConfig, builderDocsPrompt)
+    if (!newCode || newCode === builderConfig) {
+      log(chalk.yellow('Builder config had already been handled, don\'t need to handle it again'))
       return
     }
 
@@ -33,10 +34,26 @@ export class WorkerForViteVue extends Worker {
   }
 
   async handleMainConfig(): Promise<void> {
-    throw new Error('Method not implemented.')
+    const mainConfigPath = path.join(process.cwd(), this.ctx.mainFile)
+
+    const mainConfig = fs.readFileSync(mainConfigPath, 'utf-8')
+
+    const newCode = await genCodeByReplacer(mainConfig, mainDocsPrompt(this.ctx.defaultLocale.code))
+    if (!newCode || newCode === mainConfig) {
+      log(chalk.yellow('Main config had already been handled, don\'t need to handle it again'))
+      return
+    }
+
+    fs.writeFileSync(mainConfigPath, newCode)
   }
 
-  async handlePrimaryFile(): Promise<void> {
-    throw new Error('Method not implemented.')
+  async handlePrimaryFile(file: File): Promise<void> {
+    const newCode = await genCodeByReplacer(file.content, primaryFileDocsPrompt(this.ctx.locales))
+    if (!newCode || newCode === file.content) {
+      log(chalk.yellow(`${file.path} had already been translated or no word need to be translated, don't need to handle it again`))
+      return
+    }
+
+    fs.writeFileSync(file.path, newCode)
   }
 }

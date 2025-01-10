@@ -5,7 +5,7 @@ projectAutoI18n({
   builder: 'vite',
   builderConfigFile: 'vite.config.ts',
   mainFile: 'src/main.ts',
-  glob: '**/*.{vue,ts,js,jsx,tsx,json,html,css,scss,less,styl,stylus}',
+  glob: '**/*.{vue}',
   defaultLocale: {
     code: 'en',
     name: 'English',

@@ -1,8 +1,11 @@
-import type { Cache } from './cache'
-
 export interface Locale {
   name: string
   code: string
+}
+
+export interface File {
+  content: string
+  path: string
 }
 
 export interface Context {
@@ -38,5 +41,5 @@ export abstract class Worker {
 
   abstract handleMainConfig(): Promise<void>
   abstract handleBuilderConfig(): Promise<void>
-  abstract handlePrimaryFile(content: string): Promise<void>
+  abstract handlePrimaryFile(file: File): Promise<void>
 }
