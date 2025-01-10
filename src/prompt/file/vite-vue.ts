@@ -10,27 +10,28 @@ export function prompt(locales: Locale[]) {
   ## Set i18n to replace the text 
   1. Replace static text content with $t function calls:
      Before: <div>Hello World</div>
-     After:  <div>{{ $t('hello') }}</div>
+     After:  <div>{{ t('hello') }}</div>
 
   2. For text with variables, use parameters:
      Before: <div>Welcome, {{ name }}</div>  
-     After:  <div>{{ $t('welcome', { name }) }}</div>
+     After:  <div>{{ t('welcome', { name }) }}</div>
 
   3. For List formatting, use array or object parameters:
      Before: <div>Hello World</div>
-     After:  <div>{{ $t('message.hello', ['hello']) }}</div>
-     Or:     <div>{{ $t('message.hello', {'0': 'hello'}) }}</div>
+     After:  <div>{{ t('message.hello', ['hello']) }}</div>
+     Or:     <div>{{ t('message.hello', {'0': 'hello'}) }}</div>
 
-  4. For attributes, use v-bind with $t:
+  4. For attributes, use v-bind with t:
      Before: <input placeholder="Enter name">
-     After:  <input :placeholder="$t('enter_name')">
+     After:  <input :placeholder="t('enter_name')">
 
   4. For pluralization, use $tc:
      Before: {{ count }} items
-     After:  {{ $tc('items', count) }}
+     After:  {{ tc('items', count) }}
   
   ## Add i18n tag to the file
-  Set the i18n tag and translation key to the file, set the i18n tag to the end of the code
+  Set the i18n tag and translation key to the file, set the i18n tag to the end of the code,
+  The i18n tag out in the SEARCH/REPLACE block, SEARCH section contnet should be <i18n></i18n> 
 
   ## Example 1:
   * It is a simple template use the vue template syntax, add the i18n tag to the end of the code

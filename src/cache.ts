@@ -28,11 +28,11 @@ export class Cache {
 
     const cacheFile = this.ctx.cacheFile
     if (!fs.existsSync(cacheFile)) {
-      log(chalk.red('Not found cache file, auto create it file :)'))
+      log(chalk.yellow('Not found cache file, auto create the file '))
 
       await this.save()
 
-      log(chalk.green('Cache file created successfully'))
+      log(chalk.green('Cache file auto created successfully'))
       log(chalk.yellow('Before finish all task, don\'t delete this file'))
       log(chalk.white('Cache file path:'), chalk.green(cacheFile))
       return

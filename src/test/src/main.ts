@@ -1,11 +1,11 @@
 import DirectivePlugin from '@/directive'
 import router from '@/router'
-import { createI18n } from 'vue-i18n'
 import * as Sentry from '@sentry/vue'
 import dayjs from 'dayjs'
 import { createPinia } from 'pinia'
 import VWave from 'v-wave'
 import { createApp } from 'vue'
+import { createI18n } from 'vue-i18n'
 import { VueCropper } from 'vue-cropper'
 
 import VueVirtualScroller from 'vue-virtual-scroller'
@@ -42,17 +42,17 @@ if (import.meta.env.MODE === 'pre' || import.meta.env.MODE === 'production') {
   })
 }
 
-const pinia = createPinia()
-app.config.globalProperties.$dayjs = dayjs
-app.use(VWave, {})
-app.use(pinia)
 const i18n = createI18n({
   fallbackLocale: 'en',
   locale: 'en',
 })
 
-app.use(router)
+const pinia = createPinia()
+app.config.globalProperties.$dayjs = dayjs
+app.use(VWave, {})
 app.use(i18n)
+app.use(pinia)
+app.use(router)
 app.use(DirectivePlugin)
 app.use(VueVirtualScroller)
 

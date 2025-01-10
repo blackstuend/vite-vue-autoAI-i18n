@@ -109,7 +109,7 @@ export class Manager {
   }
 
   async handleMainConfig() {
-    log(chalk.green('Start generating code in main file...'))
+    log('Start generating code in main file...')
 
     await this.worker?.handleMainConfig()
 
@@ -123,12 +123,20 @@ export class Manager {
   }
 
   async handlePrimaryFile() {
+    log('Start to handle primary files...')
+
     const primaryFiles = await glob(this.ctx.glob, {
       cwd: process.cwd(),
     })
 
+    if (primaryFiles.length === 0) {
+      log(chalk.red('Search primary files by glob failed, please check your glob pattern'))
+
+      exit()
+    }
+
     for (const file of primaryFiles) {
-      log(`Handling ${file}...`)
+      log(`Handling ${file} `)
       if (this.cache) {
         if (this.cache.finish.files.includes(file)) {
           log('File already handled, skip it')

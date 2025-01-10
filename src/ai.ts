@@ -32,7 +32,7 @@ interface ReplaceMatch {
 }
 
 export function getSearchReplaceBlocks(response: string): ReplaceMatch[] {
-  const regex = /<{3,10} SEARCH\n([\s\S]*?)=======\n([\s\S]*?)>{3,10} REPLACE/gi
+  const regex = /<{3,10} SEARCH\n([\s\S]*?)={3,10}\n([\s\S]*?)>{3,10} REPLACE/gi
   const matches: ReplaceMatch[] = []
   let match
 
@@ -68,11 +68,14 @@ export async function genCodeByReplacer(originCode: string, documentation: strin
 
   const result = await askAI(rolesMessages)
 
+  console.log('result', result)
   if (!result) {
     return null
   }
 
   const matches = getSearchReplaceBlocks(result)
+
+  console.log('matches', matches)
 
   if (!matches) {
     return null

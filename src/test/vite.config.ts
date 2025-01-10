@@ -5,16 +5,17 @@ import { sentryVitePlugin } from '@sentry/vite-plugin'
 import Vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import VueMacros from 'unplugin-vue-macros/vite'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
 import VueRouter from 'unplugin-vue-router/vite'
-import { ElementPlusResolver } from 'unpugin-vue-components/resolvers'
 import { defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite'
 import viteCompression from 'vite-plugin-compression'
 import elementPlusOptimizeDepsPlugin from 'vite-plugin-element-plus-optimize-deps'
 import { VitePWA } from 'vite-plugin-pwa'
 import Layouts from 'vite-plugin-vue-layouts'
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import Package from './package.json'
 
 export default defineConfig(({ mode }) => {
@@ -152,6 +153,10 @@ export default defineConfig(({ mode }) => {
       // see uno.config.ts for config
       UnoCSS(),
 
+      VueI18nPlugin({
+        /* options */
+      }),
+      
       viteCompression({
         verbose: true,
         disable: false,

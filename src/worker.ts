@@ -48,7 +48,10 @@ export class WorkerForViteVue extends Worker {
   }
 
   async handlePrimaryFile(file: File): Promise<void> {
-    const newCode = await genCodeByReplacer(file.content, primaryFileDocsPrompt(this.ctx.locales))
+    // inject the i18n tag to the end of the file
+    const code = `${file.content}\n` + `<i18n></i18n>\n`
+
+    const newCode = await genCodeByReplacer(code, primaryFileDocsPrompt(this.ctx.locales))
     if (!newCode || newCode === file.content) {
       log(chalk.yellow(`${file.path} had already been translated or no word need to be translated, don't need to handle it again`))
       return

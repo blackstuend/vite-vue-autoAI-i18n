@@ -5,7 +5,7 @@ projectAutoI18n({
   builder: 'vite',
   builderConfigFile: 'vite.config.ts',
   mainFile: 'src/main.ts',
-  glob: '**/*.{vue}',
+  glob: '**/*.vue',
   defaultLocale: {
     code: 'en',
     name: 'English',
@@ -22,7 +22,7 @@ projectAutoI18n({
   ],
   useCache: true,
   cacheFile: '.i18n-cache.json',
-  needGenCodeInBuilderConfig: true,
-  needGenCodeInMain: true,
-  needInstallDependencies: true,
+  needGenCodeInBuilderConfig: false,
+  needGenCodeInMain: false,
+  needInstallDependencies: false,
 })
