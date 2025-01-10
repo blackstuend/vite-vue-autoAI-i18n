@@ -1,13 +1,29 @@
 {
   "name": "vue-vite-ai-i18n",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.1.2-beta.1",
   "description": "Vite project set i18n and translate with AI",
   "author": "Lucian",
   "license": "MIT",
+  "keywords": [
+    "vue",
+    "vite",
+    "i18n",
+    "internationalization",
+    "translation",
+    "ai",
+    "openai",
+    "cli",
+    "automation",
+    "vue3"
+  ],
   "bin": {
     "vue-vite-ai-i18n": "./bin/cli.js"
   },
+  "files": [
+    "bin",
+    "dist"
+  ],
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

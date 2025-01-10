@@ -7,6 +7,14 @@ A CLI tool for automatic internationalization (i18n) of Vue 3 + Vite projects.
 This tool uses AI to automatically generate code. The generated code may contain errors or incomplete parts.
 Please carefully review and test the code before using it in production.
 
+## Beta Version Notice 🚧
+
+This is a beta version. Please note:
+
+1. If you have already set up i18n in your project, DO NOT use this tool again to avoid conflicts and errors
+2. Make a backup of your project before using this tool
+3. Test thoroughly in a development environment first
+
 ## Prerequisites
 
 Before using this tool, please ensure your project meets the following requirements:
