@@ -6,7 +6,7 @@ export const AllLocales: Locale[] = [
     code: 'en-US',
   },
   {
-    name: '中文',
+    name: '简体中文',
     code: 'zh-CN',
   },
   {

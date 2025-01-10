@@ -6,7 +6,7 @@
   "author": "Lucian",
   "license": "MIT",
   "bin": {
-    "vue-vite-ai-i18n": "./dist/index.mjs"
+    "vue-vite-ai-i18n": "./bin/cli.js"
   },
   "scripts": {
     "lint": "eslint .",

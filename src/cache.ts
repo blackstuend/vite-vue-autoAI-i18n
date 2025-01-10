@@ -10,6 +10,19 @@ export interface CacheFinish {
   files: string[]
 }
 
+export function getCacheByFile(cacheFile: string): Cache | null {
+  try {
+    const cacheRawContent = fs.readFileSync(cacheFile, 'utf-8')
+    const cacheContent = JSON.parse(cacheRawContent)
+
+    return new Cache(cacheContent.context, cacheContent.finish)
+  }
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  catch (error) {
+    return null
+  }
+}
+
 export class Cache {
   ctx: Context
   finish: CacheFinish = {
@@ -19,8 +32,14 @@ export class Cache {
     files: [],
   }
 
-  constructor(ctx: Context) {
+  constructor(ctx: Context, finish?: CacheFinish) {
     this.ctx = ctx
+    this.finish = finish || {
+      install: false,
+      builder: false,
+      main: false,
+      files: [],
+    }
   }
 
   async init() {

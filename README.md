@@ -2,6 +2,11 @@
 
 A CLI tool for automatic internationalization (i18n) of Vue 3 + Vite projects.
 
+## Warning ⚠️
+
+This tool uses AI to automatically generate code. The generated code may contain errors or incomplete parts.
+Please carefully review and test the code before using it in production.
+
 ## Prerequisites
 
 Before using this tool, please ensure your project meets the following requirements:
@@ -12,6 +17,7 @@ Before using this tool, please ensure your project meets the following requireme
 
 You can verify your project setup by checking:
 - `package.json` for Vue 3 and Vite dependencies
+- `src/main.ts/js` for Vue project setup
 - `vite.config.js/ts` for Vite configuration
 
 If your project doesn't meet these requirements, this tool may not work as expected.
@@ -26,16 +32,18 @@ If your project doesn't meet these requirements, this tool may not work as expec
 
 ## Usage
 
-1. Setup OpenAI API Key in command line with `export OPENAI_API_KEY=your_api_key` (Required),
-2. Setup OpenAI Base URL in command line with `export OPENAI_BASE_URL=https://openrouter.ai/api/v1` (Optional), default is `https://api.openai.com/v1`
-3. Setup OpenAI Model in command line with `export OPENAI_MODEL=deepseek/deepseek-chat` (Optional), default is `gpt-4o-2024-08-06`
+1. Setup OpenAI API Key in command line with `export OPENAI_API_KEY=your_api_key` (Required) or set .env file and add `OPENAI_API_KEY=your_api_key`
 
-✨ (Recommended) Use OpenRouter for better cost-efficiency:
-   ```bash
-   export OPENAI_BASE_URL=https://openrouter.ai/api/v1
-   export OPENAI_MODEL=deepseek/deepseek-chat
-   ```
-   ⭐️ OpenRouter with the Deepseek model provides sufficient performance at a lower cost compared to default OpenAI options.
+> If you want to change the AI endpoint or model, you can set the environment variables in the command line. Change the endpoint command like
+`export OPENAI_BASE_URL=https://openrouter.ai/api/v1` and change the model command like
+`export OPENAI_MODEL=deepseek/deepseek-chat`
+
+> I Recommend use [claude](https://www.anthropic.com/en/claude) instead of OpenAI, it's more accurate, or use [deepseek](https://deepseek.ai/), it's more cheeper.
+
+2. Run the command
+```bash
+$ npx vue-vite-ai-i18n
+```
 
 ## Example for before and after
 
@@ -113,6 +121,6 @@ const { t } = useI18n()
 
 ## TODO
 
-- Add cache to prevent large project processing interruption
+- Optimize the i18n prompt
 - Add support more frameworks
-- Add support more builder
+- Add support more format of i18n

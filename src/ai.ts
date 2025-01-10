@@ -15,7 +15,7 @@ export async function askAI(rolesMessages: any): Promise<null | string> {
     })
 
     const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-2024-08-06',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-2024-11-20',
       messages: rolesMessages,
     })
 

@@ -10,7 +10,8 @@ export function exit() {
 
 export class FileService {
   filePath: string
-  originFormat: 'crlf' | 'lf'
+  originFormat: 'crlf' | 'lf' = 'lf'
+
   constructor(filePath: string) {
     this.filePath = filePath
 

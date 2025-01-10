@@ -1,8 +1,10 @@
+import type { Cache } from '../cache'
 import process from 'node:process'
 import chalk from 'chalk'
 import glob from 'fast-glob'
 import fs from 'fs-extra'
 import inquirer from 'inquirer'
+import { getCacheByFile } from '../cache'
 import { projectAutoI18n } from '../core'
 import { AllLocales } from '../locales'
 import { exit, log } from '../utils'
@@ -11,36 +13,38 @@ async function main() {
   const cacheFile = '.i18n-cache.json'
 
   if (fs.existsSync(cacheFile)) {
-    log(chalk.red('Cache file already exists'))
+    // ask user want to use cache
+    const { useCache } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'useCache',
+        message: 'Cache file already exists, do you want to use it?',
+      },
+    ])
 
-    try {
-      const content = await fs.readFile(cacheFile, 'utf-8')
+    if (useCache) {
+      const cache = getCacheByFile(cacheFile)
+      if (cache) {
+        await projectAutoI18n({
+          framework: cache.ctx.framework,
+          builder: cache.ctx.builder,
+          builderConfigFile: cache.ctx.builderConfigFile,
+          mainFile: cache.ctx.mainFile,
+          glob: cache.ctx.glob,
+          defaultLocale: cache.ctx.defaultLocale,
+          locales: cache.ctx.locales,
+          useCache: true,
+          cacheFile,
+          needGenCodeInBuilderConfig: cache.finish.builder,
+          needGenCodeInMain: cache.finish.main,
+          needInstallDependencies: cache.finish.install,
+        })
 
-      const cache = JSON.parse(content)
+        return
+      }
 
-      await projectAutoI18n({
-        framework: cache.framework,
-        builder: cache.builder,
-        builderConfigFile: cache.builderConfigFile,
-        mainFile: cache.mainFile,
-        glob: cache.glob,
-        defaultLocale: cache.defaultLocale,
-        locales: cache.locales,
-        useCache: cache.useCache,
-        cacheFile,
-        needGenCodeInBuilderConfig: cache.needGenCodeInBuilderConfig,
-        needGenCodeInMain: cache.needGenCodeInMain,
-        needInstallDependencies: cache.needInstallDependencies,
-      })
+      log(chalk.red('Load cache failed, keep running without cache'))
     }
-
-    // don't care about the error
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    catch (error) {
-
-    }
-
-    return
   }
 
   // ask what locales to support
