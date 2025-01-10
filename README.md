@@ -130,5 +130,7 @@ const { t } = useI18n()
 ## TODO
 
 - Optimize the i18n prompt
+- Add support more builder
 - Add support more frameworks
 - Add support more format of i18n
+- Add AI flow diagram to introduce this project
