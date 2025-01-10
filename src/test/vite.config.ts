@@ -15,7 +15,6 @@ import viteCompression from 'vite-plugin-compression'
 import elementPlusOptimizeDepsPlugin from 'vite-plugin-element-plus-optimize-deps'
 import { VitePWA } from 'vite-plugin-pwa'
 import Layouts from 'vite-plugin-vue-layouts'
-import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import Package from './package.json'
 
 export default defineConfig(({ mode }) => {
@@ -153,10 +152,6 @@ export default defineConfig(({ mode }) => {
       // see uno.config.ts for config
       UnoCSS(),
 
-      VueI18nPlugin({
-        /* options */
-      }),
-      
       viteCompression({
         verbose: true,
         disable: false,

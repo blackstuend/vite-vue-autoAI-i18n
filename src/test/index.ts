@@ -20,9 +20,9 @@ projectAutoI18n({
       name: 'Chinese',
     },
   ],
-  useCache: true,
+  useCache: false,
   cacheFile: '.i18n-cache.json',
-  needGenCodeInBuilderConfig: false,
+  needGenCodeInBuilderConfig: true,
   needGenCodeInMain: false,
   needInstallDependencies: false,
 })

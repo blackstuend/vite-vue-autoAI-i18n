@@ -43,7 +43,7 @@
                 {{ replySenderName }}
               </div>
             </div>
-            <div v-if="msgItem.isForward" class="text-primary text-[10px]">{{ t('forwardMessage') }}</div>
+            <div v-if="msgItem.isForward" class="text-primary text-[10px]">转发讯息</div>
             <slot name="reply" />
             <slot name="content" />
           </div>
@@ -82,7 +82,7 @@
           @click="onClickTagUser"
         >
           <div class="i-mdi:account-tag-outline w-6 h-6"></div>
-          <div>{{ t('tagMember') }}</div>
+          <div>标记成员</div>
         </div>
         <div
           v-show="canCheckUserInfo"
@@ -90,7 +90,7 @@
           @click="onClickShowUserInfo"
         >
           <div class="i-mdi:information-variant-circle-outline w-6 h-6"></div>
-          <div>{{ t('viewCard') }}</div>
+          <div>查看名片</div>
         </div>
       </div>
     </el-dialog>
@@ -98,8 +98,6 @@
 </template>
 <script setup lang="ts">
 import type { CheckboxValueType } from 'element-plus';
-import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
 import { formatDate } from '@/utils/dayjs';
 import type { InteractiveMessageType } from '@/models/chat';
 import type { CacheInteractiveMessageType } from '@/store/cacheMessage';
@@ -161,7 +159,7 @@ const userName = computed(() => {
     );
 
     if (!member) {
-      return t('exitedMember');
+      return '已退出成员';
     }
 
     let { nickname } = props.msgItem;
@@ -240,7 +238,7 @@ function onChangeSelectMsg(checked: CheckboxValueType, msgItem: InteractiveMessa
   if (settings.value.select.value.type === 'forward') {
     // limit 10
     if (checked && settings.value.select.value.selectedList.length >= 10) {
-      ElMessage.warning(t('maxMessageSelect'));
+      ElMessage.warning('最多只能选取10条消息');
       return;
     }
   }
@@ -414,24 +412,3 @@ watch(
   }
 }
 </style>
-
-<i18n>
-{
-  "en": {
-    "forwardMessage": "Forwarded Message",
-    "maxMessageSelect": "You can only select up to 10 messages",
-    "tagMember": "Tag Member",
-    "viewCard": "View Card", 
-    "exitedMember": "Exited Member"
-  },
-  "zh": {
-    "forwardMessage": "转发讯息",
-    "maxMessageSelect": "最多只能选取10条消息",
-    "tagMember": "标记成员",
-    "viewCard": "查看名片",
-    "exitedMember": "已退出成员"
-  }
-}
-</i18n>
-
-<i18n></i18n>
