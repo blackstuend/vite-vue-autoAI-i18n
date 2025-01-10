@@ -1,8 +1,11 @@
 import type { Context } from './type'
+import process from 'node:process'
 import chalk from 'chalk'
 import { Cache } from './cache'
 import { Manager } from './manager'
 import { log } from './utils'
+
+process.removeAllListeners('warning')
 
 export async function projectAutoI18n(context: Context) {
   const defaultContext: Partial<Context> = {
@@ -50,5 +53,6 @@ export async function projectAutoI18n(context: Context) {
     await cache.destoryCache()
   }
 
-  log(chalk.green('i18n in project generated successfully.'))
+  log('--------------------------------')
+  log(chalk.green('✨ Finished all tasks, thanks for your using! 🎉'))
 }

@@ -69,7 +69,7 @@ export class Manager {
       return
     }
 
-    log('Installing dependencies...', dependencies.join(' '))
+    log('Installing', dependencies.join(' '), '...')
 
     const packageManager = await this._getPackageManager()
     const installCommand = `${packageManager} install ${dependencies.join(' ')}`
@@ -94,7 +94,7 @@ export class Manager {
   }
 
   async handleBuilderConfig() {
-    log('Start to handle builder config file:', this.ctx.builderConfigFile, '...')
+    log('Start to handle builder config, please wait...')
 
     await this.worker?.handleBuilderConfig()
 
@@ -104,11 +104,11 @@ export class Manager {
       })
     }
 
-    log(chalk.green('Code in builder config file generated successfully.'))
+    log(chalk.green('Builder config file: ', this.ctx.builderConfigFile, ' has set i18n config successfully.'))
   }
 
   async handleMainConfig() {
-    log('Start generating code in main file...')
+    log('Start generating code in main file, please wait...')
 
     await this.worker?.handleMainConfig()
 
@@ -118,11 +118,11 @@ export class Manager {
       })
     }
 
-    log(chalk.green('Code in main file generated successfully.'))
+    log(chalk.green('File: ', this.ctx.mainFile, ' has set i18n config successfully.'))
   }
 
   async handlePrimaryFile() {
-    log('Start to handle primary files...')
+    log('Start to handle primary files, please wait...')
 
     const primaryFiles = await glob(this.ctx.glob, {
       cwd: process.cwd(),

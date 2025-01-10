@@ -15,7 +15,7 @@ export class FileService {
     this.filePath = filePath
 
     if (!fs.existsSync(filePath)) {
-      log(chalk.red(`File not found: ${filePath}`))
+      log(chalk.red(`File not found, please check if the file exists: ${filePath}`))
       exit()
     }
   }
