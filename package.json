@@ -5,6 +5,7 @@
   "description": "Vite project set i18n and translate with AI",
   "author": "Lucian",
   "license": "MIT",
+  "homepage": "https://github.com/blackstuend/vite-vue-autoAI-i18n",
   "keywords": [
     "vue",
     "vite",
