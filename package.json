@@ -15,7 +15,9 @@
     "openai",
     "cli",
     "automation",
-    "vue3"
+    "vue3",
+    "auto-i18n",
+    "auto"
   ],
   "bin": {
     "vue-vite-ai-i18n": "./bin/cli.js"
