@@ -7,10 +7,9 @@ export function prompt(locales: Locale[]) {
   There are ${locales.length} locales that need to be translated. The locale codes that should be used as i18n language keys are: ${locales.map(l => l.code).join(', ')}
   Each locale code represents a language: ${locales.map(l => `${l.code} (${l.name})`).join(', ')}
   
-  ## Important
-  ## Check if translation is needed
-  First check if there is any text content that needs to be translated in the file.
-  If there is no text content that needs translation, you can skip all the following steps and return without making any changes.
+  IMPORTANT
+  1. If the code of file don't need to be translated, return without making any change.
+  2. Don't add any new text that doesn't exist in the original file.
 
   ## Set i18n to replace the text 
   1. Replace static text content with $t function calls:
@@ -110,6 +109,27 @@ export function prompt(locales: Locale[]) {
     }
   }
   </i18n>
+  \`\`\`
+  Example 3:
+  The file had no need to be translated, return without making any change
+
+  Before:
+  \`\`\`
+  <template>
+    <div>
+      <h1></h1>
+      <p></p>
+    </div>
+  </template>
+  \`\`\`
+  After:
+  \`\`\`
+  <template>
+    <div>
+      <h1></h1>
+      <p></p>
+    </div>
+  </template>
   \`\`\`
 
 
