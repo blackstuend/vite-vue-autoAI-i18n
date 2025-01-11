@@ -36,3 +36,7 @@ yarn-error.log*
 .cache
 .temp
 .env
+
+
+# Locale Test 
+test

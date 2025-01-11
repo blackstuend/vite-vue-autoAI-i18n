@@ -1,7 +1,7 @@
 {
   "name": "vue-vite-ai-i18n",
   "type": "module",
-  "version": "0.1.2-beta.1",
+  "version": "0.1.2-beta.2",
   "description": "Vite project set i18n and translate with AI",
   "author": "Lucian",
   "license": "MIT",

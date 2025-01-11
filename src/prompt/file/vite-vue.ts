@@ -6,6 +6,11 @@ export function prompt(locales: Locale[]) {
   Your task is to translate the text in the file, and set the i18n tag to the end of the code
   There are ${locales.length} locales that need to be translated. The locale codes that should be used as i18n language keys are: ${locales.map(l => l.code).join(', ')}
   Each locale code represents a language: ${locales.map(l => `${l.code} (${l.name})`).join(', ')}
+  
+  ## Important
+  ## Check if translation is needed
+  First check if there is any text content that needs to be translated in the file.
+  If there is no text content that needs translation, you can skip all the following steps and return without making any changes.
 
   ## Set i18n to replace the text 
   1. Replace static text content with $t function calls:
@@ -31,7 +36,7 @@ export function prompt(locales: Locale[]) {
   
   ## Add i18n tag to the file
   Set the i18n tag and translation key to the file, set the i18n tag to the end of the code,
-  The i18n tag out in the SEARCH/REPLACE block, SEARCH section contnet should be <i18n></i18n> 
+  The i18n tag out in the SEARCH/REPLACE block, SEARCH section contnet should be <i18n></i18n>
 
   ## Example 1:
   * It is a simple template use the vue template syntax, add the i18n tag to the end of the code
