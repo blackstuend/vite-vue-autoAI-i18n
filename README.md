@@ -49,6 +49,8 @@ If your project doesn't meet these requirements, this tool may not work as expec
 > I Recommend use [claude](https://www.anthropic.com/en/claude) instead of OpenAI, it's more accurate, or use [deepseek](https://deepseek.ai/), it's more cheeper.
 
 2. Run the command
+> Run this command, please make sure you are in the root directory of your project.
+
 ```bash
 $ npx vue-vite-ai-i18n
 ```
