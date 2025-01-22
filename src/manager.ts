@@ -123,9 +123,9 @@ export class Manager {
 
   async handlePrimaryFile() {
     log('Start to handle primary files, please wait...')
-
     const primaryFiles = await glob(this.ctx.glob, {
       cwd: process.cwd(),
+      ignore: ['**/node_modules/**'],
     })
 
     if (primaryFiles.length === 0) {
@@ -135,13 +135,13 @@ export class Manager {
     }
 
     for (const file of primaryFiles) {
-      log(`Handling ${file} `)
       if (this.cache) {
         if (this.cache.finish.files.includes(file)) {
-          log('File already handled, skip it')
           continue
         }
       }
+
+      log(`Handling ${file} `)
 
       await this.worker?.handlePrimaryFile(file)
 

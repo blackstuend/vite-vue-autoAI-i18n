@@ -49,22 +49,14 @@ export function getSearchReplaceBlocks(response: string): ReplaceMatch[] {
 
 export function replaceCode(originCode: string, matches: ReplaceMatch[]) {
   let result = originCode
-  let lastIndex = 0
 
   matches.forEach((match) => {
-    // 從上一次替換的位置開始找尋
-    const currentIndex = result.indexOf(match.search, lastIndex)
-    if (currentIndex !== -1) {
-      // 將字串分成三部分：前段 + 替換內容 + 後段
-      const before = result.slice(0, currentIndex)
-      const after = result.slice(currentIndex + match.search.length)
-      result = before + match.replace + after
-
-      // 更新下一次搜尋的起始位置
-      lastIndex = currentIndex + match.replace.length
+    const newResult = result.replace(match.search, match.replace)
+    if (newResult === result) {
+      console.warn('Replace did not make any changes for:', match.search)
     }
+    result = newResult
   })
-
   return result
 }
 

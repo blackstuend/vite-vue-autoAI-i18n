@@ -8,8 +8,15 @@ export function prompt(locales: Locale[]) {
   Each locale code represents a language: ${locales.map(l => `${l.code} (${l.name})`).join(', ')}
   
   IMPORTANT
-  1. If the code of file don't need to be translated, return without making any change.
-  2. Don't add any new text that doesn't exist in the original file.
+  * check the script section whether there is any text that needs to be translated
+  * If the code of file don't need to be translated, return without making any change.
+  * Don't add any new text that doesn't exist in the original file.
+  * In the i18n tag, the format must be JSON, and the first key must always be locale code
+  * The i18n translation keys must use camelCase format (e.g. helloWorld, welcomeMessage)
+  * If the code need to be translated, must import i18n in the script section
+  * Don't be lazy to check the code whether it is translated
+  * All error messages (like Message.error(), message.error(), etc) must be translated
+  * All UI messages in any language (including Chinese, Japanese, etc) must be translated
 
   ## Set i18n to replace the text 
   1. Replace static text content with $t function calls:
@@ -29,9 +36,6 @@ export function prompt(locales: Locale[]) {
      Before: <input placeholder="Enter name">
      After:  <input :placeholder="t('enter_name')">
 
-  4. For pluralization, use $tc:
-     Before: {{ count }} items
-     After:  {{ tc('items', count) }}
   
   ## Add i18n tag to the file
   Set the i18n tag and translation key to the file, set the i18n tag to the end of the code,
@@ -132,13 +136,21 @@ export function prompt(locales: Locale[]) {
   </template>
   \`\`\`
 
+  ## Additional Examples for Error Messages:
+  Before:
+    Message.error('操作失败');
+  After:
+    Message.error(t('operationFailed'));
+
+  Before:
+    message.success('保存成功');
+  After:
+    message.success(t('saveSuccess'));
 
   Remember to:
   - Use meaningful translation keys that reflect the content (e.g. 'welcome.message' instead of 'text1')
   - Keep translations organized by feature/component using nested objects (e.g. 'login.title', 'login.button')
-  - Handle pluralization cases with ICU message format (e.g. '{count} {count, plural, one {item} other {items}}')
   - Extract all hardcoded strings into translation files, including button text, labels, messages
-  - Add the i18n block at the end of the component file with translations for all locales
   - If script type cannot be recognized (composition or options API), use composition API mode by default
   \`
 

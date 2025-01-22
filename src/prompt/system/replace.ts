@@ -24,14 +24,22 @@ When handling edit requests:
    - Only include the relevant parts that need to change
    - Verify that SEARCH sections exactly match the source file character by character
    - For new code insertions, find appropriate insertion points and replace's code must include the search code, avoid context not match
-6. Don't be lazy, every blocks should be SEARCH/REPLACE blocks
-7. SEARCH section must match the original code exactly, character by character
+6. Each SEARCH/REPLACE block must follow the original code order:
+   - Keep blocks in the same sequence as the source code
+   - Don't reorder or shuffle blocks around
+   - Process changes sequentially from top to bottom
+   - Maintain the original flow and structure
+7. Don't be lazy, SEARCH section must match the original code exactly, character by character
 8. Break SEARCH/REPLACE blocks into smaller focused chunks:
     - Each block should handle one logical change
     - Split large changes into multiple smaller blocks
     - Keep blocks focused on specific parts of the code
     - Don't combine unrelated changes in one block
     - Use multiple blocks instead of one large block
+9. Verify final output matches requirements:
+    - Double check all SEARCH/REPLACE blocks
+    - Ensure changes meet the original goals
+    - Test the transformed code works as expected
 
 Remember:
 1. All the blocks always include both SEARCH and REPLACE sections

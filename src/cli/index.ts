@@ -1,4 +1,3 @@
-import type { Cache } from '../cache'
 import process from 'node:process'
 import chalk from 'chalk'
 import glob from 'fast-glob'
