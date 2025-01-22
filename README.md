@@ -44,7 +44,7 @@ If your project doesn't meet these requirements, this tool may not work as expec
 
 > If you want to change the AI endpoint or model, you can set the environment variables in the command line. Change the endpoint command like
 `export OPENAI_BASE_URL=https://openrouter.ai/api/v1` and change the model command like
-`export OPENAI_MODEL=deepseek/deepseek-chat`
+`export OPENAI_MODEL=deepseek/deepseek-r1`
 
 > I Recommend use [claude](https://www.anthropic.com/en/claude) instead of OpenAI, it's more accurate, or use [deepseek](https://deepseek.ai/), it's more cheeper.
 
