@@ -6,9 +6,21 @@ export function prompt(locales: Locale[]) {
   Your task is to translate the text in the file, and set the i18n tag to the end of the code
   There are ${locales.length} locales that need to be translated. The locale codes that should be used as i18n language keys are: ${locales.map(l => l.code).join(', ')}
   Each locale code represents a language: ${locales.map(l => `${l.code} (${l.name})`).join(', ')}
-  
+    
   IMPORTANT
-  * check the script section whether there is any text that needs to be translated
+  * Thoroughly check ALL sections of the file for text that needs translation:
+    - Template section: All static text, attributes, and interpolated strings
+    - Script section: All string literals, error messages, console logs, alerts
+    - Comments that contain user-facing messages
+  * Create a mental checklist and verify each section systematically
+  * Double-check for easily missed items like:
+    - Error messages in try/catch blocks
+    - Console messages
+    - Alert/notification calls
+    - Validation messages
+    - Placeholder text
+    - Button labels
+    - Modal titles and content
   * If the code of file don't need to be translated, return without making any change.
   * Don't add any new text that doesn't exist in the original file.
   * In the i18n tag, the format must be JSON, and the first key must always be locale code
@@ -17,6 +29,14 @@ export function prompt(locales: Locale[]) {
   * Don't be lazy to check the code whether it is translated
   * All error messages (like Message.error(), message.error(), etc) must be translated
   * All UI messages in any language (including Chinese, Japanese, etc) must be translated
+  * Required verification steps before responding:
+    1. Scan entire file line by line for any text content
+    2. Mark each found text for translation
+    3. Verify all marked text has corresponding i18n keys
+    4. Check all i18n keys follow camelCase naming
+    5. Ensure all locales are included in translations
+    6. Verify no text is left untranslated
+  * You must complete all verification steps - no exceptions
 
   ## Set i18n to replace the text 
   1. Replace static text content with $t function calls:
@@ -36,35 +56,50 @@ export function prompt(locales: Locale[]) {
      Before: <input placeholder="Enter name">
      After:  <input :placeholder="t('enter_name')">
 
-  
+
   ## Add i18n tag to the file
   Set the i18n tag and translation key to the file, set the i18n tag to the end of the code,
   The i18n tag out in the SEARCH/REPLACE block, SEARCH section contnet should be <i18n></i18n>
 
   ## Example 1:
   * It is a simple template use the vue template syntax, add the i18n tag to the end of the code
-  
-  Before:
+
   \`\`\`
   <template>
-    <p>hello</p>
+    <div>
+      <h1>{{ t('greeting') }}</h1>
+      <p>{{ t('message') }}</p>
+      <button @click="switchLocale">{{ t('button') }}</button>
+    </div>
   </template>
 
-  <script>
-  export default {
-    name: 'App',
-  }
+  <script setup>
+  import { useI18n } from 'vue-i18n'
+
+  const { t } = useI18n()
   </script>
+  <i18n>
+  {
+    "en": {
+      "greeting": "Hello World",
+      "message": "Welcome to My App",
+      "button": "Click me"
+    }
+  }
+  </i18n>
   \`\`\`
 
-  After:
+  Example 2:
+  * Option API
+
   \`\`\`
   <template>
-    <div>Hello World</div>
+    <div>
+      <p>{{ t('hello') }}</p>
+    </div>
   </template>
   <script>
   import { useI18n } from 'vue-i18n'
-
   export default {
     name: 'App',
     setup() {
@@ -82,77 +117,37 @@ export function prompt(locales: Locale[]) {
   </i18n>
   \`\`\`
 
-  Example 2:
-  * It is a template use the vue composition api, add the i18n tag to the end of the code
-
-  Before:
+  Example 3:
+  * Script have word need to be translated
   \`\`\`
   <template>
-    <p>hello</p>
-  </template>
-
-  <script setup lang="ts>
-  import { useI18n } from 'vue-i18n'
-  const { t } = useI18n()
-  </script>
-  \`\`\`
-
-  After:
-  \`\`\`
-  <template>
-    <p>{{ t('hello') }}</p>
+    <div>
+      <p>{{ t('hello') }}</p>
+    </div>
   </template>
   <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
   const { t } = useI18n()
+
+  alert(t('hello', { name: 'world' }))
+  message.success(t('saveSuccess'))
+  console.log(t('hello'))
+  Message.error(t('operationFailed'))
+  alert(t('hello', { name: 'world' }))
+  alert(t('loginSuccess'))
+  alert(t('loginFailed'))
   </script>
   <i18n>
   {
     "en": {
-      "hello": "hello!"
+      "hello": "hello, {name}!",
+      "saveSuccess": "save success",
+      "operationFailed": "operation failed",
+      "loginSuccess": "login success",
+      "loginFailed": "login failed"
     }
   }
   </i18n>
   \`\`\`
-  Example 3:
-  The file had no need to be translated, return without making any change
-
-  Before:
-  \`\`\`
-  <template>
-    <div>
-      <h1></h1>
-      <p></p>
-    </div>
-  </template>
-  \`\`\`
-  After:
-  \`\`\`
-  <template>
-    <div>
-      <h1></h1>
-      <p></p>
-    </div>
-  </template>
-  \`\`\`
-
-  ## Additional Examples for Error Messages:
-  Before:
-    Message.error('操作失败');
-  After:
-    Message.error(t('operationFailed'));
-
-  Before:
-    message.success('保存成功');
-  After:
-    message.success(t('saveSuccess'));
-
-  Remember to:
-  - Use meaningful translation keys that reflect the content (e.g. 'welcome.message' instead of 'text1')
-  - Keep translations organized by feature/component using nested objects (e.g. 'login.title', 'login.button')
-  - Extract all hardcoded strings into translation files, including button text, labels, messages
-  - If script type cannot be recognized (composition or options API), use composition API mode by default
-  \`
-
   `
 }

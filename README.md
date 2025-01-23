@@ -46,18 +46,36 @@ If your project doesn't meet these requirements, this tool may not work as expec
 `export OPENAI_BASE_URL=https://openrouter.ai/api/v1` and change the model command like
 `export OPENAI_MODEL=deepseek/deepseek-r1`
 
-> I Recommend use [claude](https://www.anthropic.com/en/claude) instead of OpenAI, it's more accurate, or use [deepseek](https://deepseek.ai/), it's more cheeper.
+> I Recommend use [deepseek](https://deepseek.ai/) it's more cheeper and more accurate, model is `deepseek-r1`.
 
 2. Run the command
 > Run this command, please make sure you are in the root directory of your project.
 
 ```bash
 $ npx vue-vite-ai-i18n
+✔ Please select the locales to support: English, 简体中文, 繁體中文, 日本語
+✔ Please select the default locale: English
+✔ Do you want to install dependencies? Yes
+✔ Do you want to generate code in builder config file? Yes
+✔ Do you want to generate code in main file? Yes
+```
+
+* After run the command, it will generate the cache file `.i18n-cache.json`, this cache storage the status of the process of the project, like which file has been processed, so next time you run the command, you can continue from the last status.
+
+```
+$ npx vue-vite-ai-i18n
+? Cache file already exists, do you want to use it? (Y/n)
+```
+
+### If you just want to generate code in vue file, it work in nuxt project too
+Run the command with `--only-vue` option, it will only generate code in vue file.
+```
+$ npx vue-vite-ai-i18n --only-vue
 ```
 
 ## Example for before and after
 
-### vite.config.ts
+### Gen code in vite.config.ts
 
 Before
 ```ts
@@ -81,7 +99,7 @@ export default defineConfig({
 })
 ```
 
-### src/main.ts
+### Gen code in main.ts
 
 Before
 ```ts
@@ -103,7 +121,7 @@ const i18n = createI18n({
 })
 ```
 
-### Vue file
+### Gen code in vue file
 
 Before
 ```vue

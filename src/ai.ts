@@ -15,7 +15,7 @@ export async function askAI(rolesMessages: any): Promise<null | string> {
     })
 
     const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-2024-11-20',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-2024-08-06',
       messages: rolesMessages,
     })
 
@@ -52,9 +52,7 @@ export function replaceCode(originCode: string, matches: ReplaceMatch[]) {
 
   matches.forEach((match) => {
     const newResult = result.replace(match.search, match.replace)
-    if (newResult === result) {
-      console.warn('Replace did not make any changes for:', match.search)
-    }
+
     result = newResult
   })
   return result

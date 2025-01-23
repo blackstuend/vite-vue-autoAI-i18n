@@ -8,6 +8,8 @@ import { projectAutoI18n } from '../core'
 import { AllLocales } from '../locales'
 import { exit, log } from '../utils'
 
+const isOnlyVue = process.argv.includes('--only-vue')
+
 async function main() {
   const cacheFile = '.i18n-cache.json'
 
@@ -85,6 +87,23 @@ async function main() {
     exit()
 
     return
+  }
+
+  if (isOnlyVue) {
+    await projectAutoI18n({
+      framework: 'vue',
+      builder: 'vite',
+      builderConfigFile: '',
+      mainFile: '',
+      glob: '**/*.vue',
+      defaultLocale,
+      locales,
+      useCache: true,
+      cacheFile,
+      needGenCodeInBuilderConfig: false,
+      needGenCodeInMain: false,
+      needInstallDependencies: false,
+    })
   }
 
   // ask user want to install dependencies

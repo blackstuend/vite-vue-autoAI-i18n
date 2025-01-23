@@ -64,7 +64,26 @@ export class WorkerForViteVue extends Worker {
     }
 
     // sometimes ai forget to replace the <i18n></i18n> tag, so we need to remove it
-    const fixedCode = newCode.replace(/<i18n><\/i18n>/g, '')
+    let fixedCode = newCode.replace(/<i18n><\/i18n>/g, '')
+
+    const i18nJSON = fixedCode.match(/<i18n>(.*?)<\/i18n>/s)
+
+    // check the i18n tag's json is empty, if it is, remove the i18n tag
+    if (i18nJSON) {
+      try {
+        const json = JSON.parse(i18nJSON[1])
+
+        const secondLayer = Object.values(json as object)
+
+        const hasTranslated = secondLayer.some(item => Object.keys(item as object).length > 0)
+        if (!hasTranslated) {
+          // remove the i18n tag
+          fixedCode = fixedCode.replace(/<i18n>(.*?)<\/i18n>/s, '')
+        }
+      }
+      // eslint-disable-next-line unused-imports/no-unused-vars
+      catch (error) {}
+    }
 
     await fileService.writeFile(fixedCode)
   }
