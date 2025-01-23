@@ -77,7 +77,6 @@ export async function genCodeByReplacer(originCode: string, documentation: strin
 
   const result = await askAI(rolesMessages)
 
-  console.log('result', result)
   if (!result) {
     return null
   }

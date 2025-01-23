@@ -2,6 +2,13 @@
 
 A CLI tool for automatic internationalization (i18n) of Vue 3 + Vite projects.
 
+## Prerequisites
+
+- Node.js version 18 or higer
+- Vue 3 project
+- Vite as build tool(If run full mode)
+- Nuxt could run --only-vue option
+
 ## Warning ⚠️
 
 This tool uses AI to automatically generate code. The generated code may contain errors or incomplete parts.
