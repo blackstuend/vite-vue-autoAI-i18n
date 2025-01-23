@@ -68,7 +68,7 @@ export class WorkerForViteVue extends Worker {
 
     const i18nJSON = fixedCode.match(/<i18n>(.*?)<\/i18n>/s)
 
-    // check the i18n tag's json is empty, if it is, remove the i18n tag
+    // NOTE: check the i18n tag's json is empty, if it is, remove the i18n tag
     if (i18nJSON) {
       try {
         const json = JSON.parse(i18nJSON[1])

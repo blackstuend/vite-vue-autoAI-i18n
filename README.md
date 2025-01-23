@@ -46,7 +46,7 @@ If your project doesn't meet these requirements, this tool may not work as expec
 `export OPENAI_BASE_URL=https://openrouter.ai/api/v1` and change the model command like
 `export OPENAI_MODEL=deepseek/deepseek-r1`
 
-> I Recommend use [deepseek](https://deepseek.ai/) it's more cheeper and more accurate, model is `deepseek-r1`.
+> I Recommend use [deepseek](https://deepseek.ai/) it's more cheeper but speed is slower, model is `deepseek-r1`.
 
 2. Run the command
 > Run this command, please make sure you are in the root directory of your project.

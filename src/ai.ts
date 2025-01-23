@@ -64,13 +64,20 @@ export async function genCodeByReplacer(originCode: string, documentation: strin
         ${systemReplacePrompt}
         ` },
     { role: 'user', content: `
-        origin code: ${originCode}
-        documentation: ${documentation}
+        Please follow the documentation to replace the code:
+        
+        ====================
+        Documentation: ${documentation}
+        ====================
+        ====================
+        Origin code: ${originCode}
+        ====================
         ` },
   ]
 
   const result = await askAI(rolesMessages)
 
+  console.log('result', result)
   if (!result) {
     return null
   }

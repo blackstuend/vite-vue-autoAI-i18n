@@ -7,9 +7,9 @@ export interface Context {
   framework: 'vue' | 'react' | 'svelete'
   builder: 'vite' | 'webpack' | 'nuxt'
   // config file like vite.config.ts, webpack.config.js, nuxt.config.ts
-  builderConfigFile?: string
+  builderConfigFile: string
   // main file like main.ts, main.js
-  mainFile?: string
+  mainFile: string
   // which files to be add i18n
   glob: string
   useCache?: boolean
@@ -18,11 +18,11 @@ export interface Context {
   defaultLocale: Locale
   locales: Locale[]
   // determine if generate i18n for builder config file
-  needGenCodeInBuilderConfig?: boolean
+  needGenCodeInBuilderConfig: boolean
   // determine if generate i18n for main file
-  needGenCodeInMain?: boolean
+  needGenCodeInMain: boolean
   // determine if install dependencies
-  needInstallDependencies?: boolean
+  needInstallDependencies: boolean
 }
 
 export abstract class Worker {
